@@ -22,7 +22,9 @@ export const MessageCodeBlock: FC<MessageCodeBlockProps> = memo(
     return (
       <div className="group relative w-full bg-transparent font-mono">
         <div className="mb-2 flex w-full items-center justify-between border-b border-white/5 py-1">
-          <span className="text-[10px] uppercase tracking-widest text-white/30">{language}</span>
+          <span className="text-[10px] uppercase tracking-widest text-white/30">
+            {language}
+          </span>
           <Button
             variant="ghost"
             size="icon"

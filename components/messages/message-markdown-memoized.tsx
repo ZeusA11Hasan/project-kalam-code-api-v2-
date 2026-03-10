@@ -17,16 +17,22 @@ export const MessageMarkdownMemoized: FC<Options> = memo(
    To add plugins, we need to return a component that renders ReactMarkdown with plugins.
 */
 
-export const MessageMarkdown = memo((props: Options) => (
-  <ReactMarkdown
-    {...props}
-    remarkPlugins={[remarkMath, ...(props.remarkPlugins || [])]}
-    rehypePlugins={[rehypeKatex, ...(props.rehypePlugins || [])]}
-    components={{
-      p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-      ...props.components
-    }}
-  >
-    {props.children}
-  </ReactMarkdown>
-), (prev, next) => prev.children === next.children && prev.className === next.className);
+export const MessageMarkdown = memo(
+  (props: Options) => (
+    <ReactMarkdown
+      {...props}
+      remarkPlugins={[remarkMath, ...(props.remarkPlugins || [])]}
+      rehypePlugins={[rehypeKatex, ...(props.rehypePlugins || [])]}
+      components={{
+        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+        ...props.components
+      }}
+    >
+      {props.children}
+    </ReactMarkdown>
+  ),
+  (prev, next) =>
+    prev.children === next.children && prev.className === next.className
+)
+
+MessageMarkdown.displayName = "MessageMarkdown"

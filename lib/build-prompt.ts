@@ -355,8 +355,9 @@ export async function buildFinalMessages(
 
     finalMessages[finalMessages.length - 1] = {
       ...finalMessages[finalMessages.length - 1],
-      content: `${finalMessages[finalMessages.length - 1].content
-        }\n\n${retrievalText}`
+      content: `${
+        finalMessages[finalMessages.length - 1].content
+      }\n\n${retrievalText}`
     }
   }
 
@@ -372,12 +373,11 @@ function buildRetrievalText(fileItems: Tables<"file_items">[]) {
 }
 
 function adaptSingleMessageForGoogleGemini(message: any) {
-
   let adaptedParts = []
 
   let rawParts = []
   if (!Array.isArray(message.content)) {
-    rawParts.push({ type: 'text', text: message.content })
+    rawParts.push({ type: "text", text: message.content })
   } else {
     rawParts = message.content
   }
@@ -385,23 +385,23 @@ function adaptSingleMessageForGoogleGemini(message: any) {
   for (let i = 0; i < rawParts.length; i++) {
     let rawPart = rawParts[i]
 
-    if (rawPart.type == 'text') {
+    if (rawPart.type == "text") {
       adaptedParts.push({ text: rawPart.text })
-    } else if (rawPart.type === 'image_url') {
+    } else if (rawPart.type === "image_url") {
       adaptedParts.push({
         inlineData: {
           data: getBase64FromDataURL(rawPart.image_url.url),
-          mimeType: getMediaTypeFromDataURL(rawPart.image_url.url),
+          mimeType: getMediaTypeFromDataURL(rawPart.image_url.url)
         }
       })
     }
   }
 
-  let role = 'user'
+  let role = "user"
   if (["user", "system"].includes(message.role)) {
-    role = 'user'
-  } else if (message.role === 'assistant') {
-    role = 'model'
+    role = "user"
+  } else if (message.role === "assistant") {
+    role = "model"
   }
 
   return {
@@ -410,23 +410,23 @@ function adaptSingleMessageForGoogleGemini(message: any) {
   }
 }
 
-function adaptMessagesForGeminiVision(
-  messages: any[]
-) {
+function adaptMessagesForGeminiVision(messages: any[]) {
   // Gemini Pro Vision cannot process multiple messages
   // Reformat, using all texts and last visual only
 
   const basePrompt = messages[0].parts[0].text
   const baseRole = messages[0].role
   const lastMessage = messages[messages.length - 1]
-  const visualMessageParts = lastMessage.parts;
-  let visualQueryMessages = [{
-    role: "user",
-    parts: [
-      `${baseRole}:\n${basePrompt}\n\nuser:\n${visualMessageParts[0].text}\n\n`,
-      visualMessageParts.slice(1)
-    ]
-  }]
+  const visualMessageParts = lastMessage.parts
+  let visualQueryMessages = [
+    {
+      role: "user",
+      parts: [
+        `${baseRole}:\n${basePrompt}\n\nuser:\n${visualMessageParts[0].text}\n\n`,
+        visualMessageParts.slice(1)
+      ]
+    }
+  ]
   return visualQueryMessages
 }
 
@@ -445,4 +445,3 @@ export async function adaptMessagesForGoogleGemini(
   }
   return geminiMessages
 }
-

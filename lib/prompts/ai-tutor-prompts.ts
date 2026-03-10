@@ -48,7 +48,7 @@ Response:
   {"type": "rectangle", "position": [380, 380], "width": 20, "height": 20}
 ]
 
-REMEMBER: Output ONLY the JSON array. No explanations.`;
+REMEMBER: Output ONLY the JSON array. No explanations.`
 
 // LaTeX formatting rules for math responses
 export const LATEX_SYSTEM_PROMPT = `You are an AI Tutor specializing in mathematics. Format all mathematical expressions using LaTeX.
@@ -92,7 +92,7 @@ export const LATEX_SYSTEM_PROMPT = `You are an AI Tutor specializing in mathemat
    \\end{pmatrix}
    $$
 
-Always ensure math is properly formatted for clarity.`;
+Always ensure math is properly formatted for clarity.`
 
 // NCERT/JEE style answer format
 export const NCERT_JEE_STYLE_PROMPT = `You are an AI Tutor for Indian students preparing for JEE/NEET exams. Follow the NCERT answer style.
@@ -138,7 +138,7 @@ $$KE = \\frac{1}{2} \\times 2 \\times (5)^2$$
 $$KE = \\frac{1}{2} \\times 2 \\times 25$$
 $$KE = 25 \\text{ J}$$
 
-**Answer:** $\\boxed{KE = 25 \\text{ J}}$`;
+**Answer:** $\\boxed{KE = 25 \\text{ J}}$`
 
 // Combined tutor prompt
 export const AI_TUTOR_SYSTEM_PROMPT = `You are an expert AI Tutor designed for Indian students preparing for competitive exams (JEE, NEET, etc.).
@@ -162,19 +162,21 @@ If the user asks you to "draw", "show", "illustrate", or "visualize", respond wi
 - Inline: $formula$
 - Block: $$formula$$
 
-Be helpful, accurate, and make learning enjoyable!`;
+Be helpful, accurate, and make learning enjoyable!`
 
 // Function to get the appropriate prompt based on mode
-export function getSystemPrompt(mode: 'whiteboard' | 'latex' | 'ncert' | 'tutor' = 'tutor'): string {
-    switch (mode) {
-        case 'whiteboard':
-            return WHITEBOARD_SYSTEM_PROMPT;
-        case 'latex':
-            return LATEX_SYSTEM_PROMPT;
-        case 'ncert':
-            return NCERT_JEE_STYLE_PROMPT;
-        case 'tutor':
-        default:
-            return AI_TUTOR_SYSTEM_PROMPT;
-    }
+export function getSystemPrompt(
+  mode: "whiteboard" | "latex" | "ncert" | "tutor" = "tutor"
+): string {
+  switch (mode) {
+    case "whiteboard":
+      return WHITEBOARD_SYSTEM_PROMPT
+    case "latex":
+      return LATEX_SYSTEM_PROMPT
+    case "ncert":
+      return NCERT_JEE_STYLE_PROMPT
+    case "tutor":
+    default:
+      return AI_TUTOR_SYSTEM_PROMPT
+  }
 }

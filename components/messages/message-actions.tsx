@@ -33,7 +33,7 @@ export const MessageActions: FC<MessageActionsProps> = ({
     setShowCheckmark(true)
   }
 
-  const handleForkChat = async () => { }
+  const handleForkChat = async () => {}
 
   useEffect(() => {
     if (showCheckmark) {

@@ -16,13 +16,17 @@ export const fetchHostedModels = async (profile: Tables<"profiles">) => {
     const response = await fetch("/api/keys")
 
     if (!response.ok) {
-      console.error('API Error (/api/keys):', response.status, response.statusText);
+      console.error(
+        "API Error (/api/keys):",
+        response.status,
+        response.statusText
+      )
       throw new Error(`Server is not responding.`)
     }
 
-    const contentType = response.headers.get("content-type");
+    const contentType = response.headers.get("content-type")
     if (!contentType || !contentType.includes("application/json")) {
-      throw new TypeError("Expected JSON response from /api/keys");
+      throw new TypeError("Expected JSON response from /api/keys")
     }
 
     const data = await response.json()
@@ -65,13 +69,13 @@ export const fetchOllamaModels = async () => {
     )
 
     if (!response.ok) {
-      console.error('API Error (Ollama):', response.status, response.statusText);
+      console.error("API Error (Ollama):", response.status, response.statusText)
       throw new Error(`Ollama server is not responding.`)
     }
 
-    const contentType = response.headers.get("content-type");
+    const contentType = response.headers.get("content-type")
     if (!contentType || !contentType.includes("application/json")) {
-      throw new TypeError("Expected JSON response from Ollama API");
+      throw new TypeError("Expected JSON response from Ollama API")
     }
 
     const data = await response.json()
@@ -96,13 +100,17 @@ export const fetchOpenRouterModels = async () => {
     const response = await fetch("https://openrouter.ai/api/v1/models")
 
     if (!response.ok) {
-      console.error('API Error (OpenRouter):', response.status, response.statusText);
+      console.error(
+        "API Error (OpenRouter):",
+        response.status,
+        response.statusText
+      )
       throw new Error(`OpenRouter server is not responding.`)
     }
 
-    const contentType = response.headers.get("content-type");
+    const contentType = response.headers.get("content-type")
     if (!contentType || !contentType.includes("application/json")) {
-      throw new TypeError("Expected JSON response from OpenRouter API");
+      throw new TypeError("Expected JSON response from OpenRouter API")
     }
 
     const { data } = await response.json()

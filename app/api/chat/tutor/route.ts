@@ -1,16 +1,17 @@
-
-import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import { callLLM } from "@/lib/llm";
-import { GEMINI_MODELS } from "@/lib/gemini-constants";
+import { NextRequest, NextResponse } from "next/server"
+import { z } from "zod"
+import { callLLM } from "@/lib/llm"
+import { GEMINI_MODELS } from "@/lib/gemini-constants"
 
 // 🚨 Node runtime required
-export const runtime = "nodejs";
+export const runtime = "nodejs"
 
 // 🎯 INTENT DETECTION
 function wantsWhiteboard(text: string): boolean {
-  if (!text) return false;
-  return /board|draw|whiteboard|explain visually|show steps|diagram|visualize/i.test(text);
+  if (!text) return false
+  return /board|draw|whiteboard|explain visually|show steps|diagram|visualize/i.test(
+    text
+  )
 }
 
 // 🧱 SCHEMAS
@@ -18,17 +19,17 @@ const LLMWhiteboardSchema = z.object({
   mode: z.literal("whiteboard"),
   board_latex: z.string(),
   chat_explanation: z.string()
-});
+})
 
 const LLMChatSchema = z.object({
   mode: z.literal("chat"),
   message: z.string()
-});
+})
 
 const LLMResponseSchema = z.discriminatedUnion("mode", [
   LLMWhiteboardSchema,
   LLMChatSchema
-]);
+])
 
 // 🤖 SYSTEM PROMPT
 const SYSTEM_PROMPT = `
@@ -80,18 +81,18 @@ Output:
   "board_latex": "\\\\begin{align*} x^2 + 5x + 6 &= 0 \\\\\\\\ (x+2)(x+3) &= 0 \\\\\\\\ x &= -2, -3 \\\\end{align*}",
   "chat_explanation": "I've factored the quadratic equation to find the two solutions for x."
 }
-`;
+`
 
 // 🔁 API HANDLER
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { message, messages } = body;
-    const userQuery = message || messages?.[messages.length - 1]?.content || "";
+    const body = await req.json()
+    const { message, messages } = body
+    const userQuery = message || messages?.[messages.length - 1]?.content || ""
 
-    if (!userQuery) throw new Error("No message provided");
+    if (!userQuery) throw new Error("No message provided")
 
-    const isBoardRequest = wantsWhiteboard(userQuery);
+    const isBoardRequest = wantsWhiteboard(userQuery)
 
     // 🔴 DEMO MODE — REMOVE AFTER LLM IS LIVE
     if (userQuery.includes("Solve x^2 + 5x + 6 = 0 on the board")) {
@@ -103,7 +104,7 @@ export async function POST(req: NextRequest) {
         "x + 2 = 0 \\quad \\text{or} \\quad x + 3 = 0",
         "\\text{Therefore,}",
         "x = -2 \\quad \\text{or} \\quad x = -3"
-      ];
+      ]
 
       return NextResponse.json({
         mode: "whiteboard",
@@ -123,12 +124,16 @@ export async function POST(req: NextRequest) {
             }
           ]
         }
-      });
+      })
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY
 
-    if (!apiKey) return NextResponse.json({ mode: "chat", chat: "Configuration Error: No API Key." });
+    if (!apiKey)
+      return NextResponse.json({
+        mode: "chat",
+        chat: "Configuration Error: No API Key."
+      })
 
     // 🧠 LLM CALL
     const result = await callLLM(userQuery, {
@@ -136,36 +141,42 @@ export async function POST(req: NextRequest) {
       systemInstruction: SYSTEM_PROMPT,
       geminiModel: GEMINI_MODELS.FAST,
       stream: false
-    });
+    })
 
-    let text = result as string;
+    let text = result as string
     // Clean potential markdown code blocks
-    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    text = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim()
 
     // 🔍 PARSE & VALIDATE
-    let parsedString;
+    let parsedString
     try {
-      parsedString = JSON.parse(text);
+      parsedString = JSON.parse(text)
     } catch {
       // Fallback to chat if JSON invalid
-      return NextResponse.json({ mode: "chat", chat: text });
+      return NextResponse.json({ mode: "chat", chat: text })
     }
 
     // Validate against discriminated union
-    const validation = LLMResponseSchema.safeParse(parsedString);
+    const validation = LLMResponseSchema.safeParse(parsedString)
 
     if (!validation.success) {
-      console.error("Schema Validation Failed", validation.error);
-      return NextResponse.json({ mode: "chat", chat: "I encountered an error generating the explanation." });
+      console.error("Schema Validation Failed", validation.error)
+      return NextResponse.json({
+        mode: "chat",
+        chat: "I encountered an error generating the explanation."
+      })
     }
 
-    const data = validation.data;
+    const data = validation.data
 
     if (data.mode === "chat") {
       return NextResponse.json({
         mode: "chat",
         chat: data.message
-      });
+      })
     }
 
     if (data.mode === "whiteboard") {
@@ -190,14 +201,13 @@ export async function POST(req: NextRequest) {
             }
           ]
         }
-      });
+      })
     }
-
   } catch (error) {
-    console.error("Backend Error:", error);
+    console.error("Backend Error:", error)
     return NextResponse.json({
       mode: "chat",
       chat: "I'm having trouble processing that request right now."
-    });
+    })
   }
 }

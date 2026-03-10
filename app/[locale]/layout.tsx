@@ -14,8 +14,11 @@ import { cn } from "@/lib/utils"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
-const outfit = Outfit({ subsets: ["latin"], variable: '--font-outfit' })
-const darkerGrotesque = Darker_Grotesque({ subsets: ["latin"], variable: '--font-darker-grotesque' })
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" })
+const darkerGrotesque = Darker_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-darker-grotesque"
+})
 const APP_NAME = "Chatbot UI"
 const APP_DEFAULT_TITLE = "Chatbot UI"
 const APP_TITLE_TEMPLATE = "%s - Chatbot UI"
@@ -84,7 +87,13 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(inter.className, outfit.variable, darkerGrotesque.variable)}>
+      <body
+        className={cn(
+          inter.className,
+          outfit.variable,
+          darkerGrotesque.variable
+        )}
+      >
         <Providers attribute="class" defaultTheme="dark">
           <TranslationsProvider
             namespaces={i18nNamespaces}

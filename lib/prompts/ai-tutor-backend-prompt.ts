@@ -139,84 +139,102 @@ FINAL RULES
 - No explanations about the rules.
 - No apologies.
 - No markdown.
-- Always valid JSON.`;
+- Always valid JSON.`
 
 /**
  * TypeScript interface for the expected AI response
  */
 export interface AITutorResponse {
-    answer: string;
-    latex: string;
-    whiteboard: WhiteboardCommand[];
-    voice: string;
-    used_rag: boolean;
-    rag_sources: string[];
-    followup: string;
+  answer: string
+  latex: string
+  whiteboard: WhiteboardCommand[]
+  voice: string
+  used_rag: boolean
+  rag_sources: string[]
+  followup: string
 }
 
 export interface WhiteboardCommand {
-    type: 'line' | 'curve' | 'label';
-    from?: [number, number];
-    to?: [number, number];
-    curveType?: 'parabola' | 'bezier' | 'linear';
-    points?: [number, number][];
-    text?: string;
-    position?: [number, number];
+  type: "line" | "curve" | "label"
+  from?: [number, number]
+  to?: [number, number]
+  curveType?: "parabola" | "bezier" | "linear"
+  points?: [number, number][]
+  text?: string
+  position?: [number, number]
 }
 
 export interface RAGChunk {
-    text: string;
-    source: string;
+  text: string
+  source: string
 }
 
 /**
  * Format the input for the AI backend
  */
-export function formatBackendInput(userMessage: string, ragChunks: RAGChunk[] = []): string {
-    return JSON.stringify({
-        user_message: userMessage,
-        rag_chunks: ragChunks
-    }, null, 2);
+export function formatBackendInput(
+  userMessage: string,
+  ragChunks: RAGChunk[] = []
+): string {
+  return JSON.stringify(
+    {
+      user_message: userMessage,
+      rag_chunks: ragChunks
+    },
+    null,
+    2
+  )
 }
 
 /**
  * Parse the AI response JSON
  */
-export function parseBackendResponse(responseText: string): AITutorResponse | null {
-    try {
-        // Remove any potential markdown code fences
-        let cleaned = responseText.trim();
-        if (cleaned.startsWith('```json')) {
-            cleaned = cleaned.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-        } else if (cleaned.startsWith('```')) {
-            cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
-        }
-
-        return JSON.parse(cleaned) as AITutorResponse;
-    } catch (error) {
-        console.error('Failed to parse AI response:', error);
-        return null;
+export function parseBackendResponse(
+  responseText: string
+): AITutorResponse | null {
+  try {
+    // Remove any potential markdown code fences
+    let cleaned = responseText.trim()
+    if (cleaned.startsWith("```json")) {
+      cleaned = cleaned.replace(/^```json\s*/, "").replace(/\s*```$/, "")
+    } else if (cleaned.startsWith("```")) {
+      cleaned = cleaned.replace(/^```\s*/, "").replace(/\s*```$/, "")
     }
+
+    return JSON.parse(cleaned) as AITutorResponse
+  } catch (error) {
+    console.error("Failed to parse AI response:", error)
+    return null
+  }
 }
 
 /**
  * Validate whiteboard commands
  */
-export function validateWhiteboardCommands(commands: any[]): WhiteboardCommand[] {
-    return commands.filter(cmd => {
-        if (!cmd.type) return false;
+export function validateWhiteboardCommands(
+  commands: any[]
+): WhiteboardCommand[] {
+  return commands.filter(cmd => {
+    if (!cmd.type) return false
 
-        switch (cmd.type) {
-            case 'line':
-                return Array.isArray(cmd.from) && Array.isArray(cmd.to) &&
-                    cmd.from.length === 2 && cmd.to.length === 2;
-            case 'curve':
-                return Array.isArray(cmd.points) && cmd.points.length >= 2;
-            case 'label':
-                return typeof cmd.text === 'string' && Array.isArray(cmd.position) &&
-                    cmd.position.length === 2;
-            default:
-                return false;
-        }
-    });
+    switch (cmd.type) {
+      case "line":
+        return (
+          Array.isArray(cmd.from) &&
+          Array.isArray(cmd.to) &&
+          cmd.from.length === 2 &&
+          cmd.to.length === 2
+        )
+      case "curve":
+        return Array.isArray(cmd.points) && cmd.points.length >= 2
+      case "label":
+        return (
+          typeof cmd.text === "string" &&
+          Array.isArray(cmd.position) &&
+          cmd.position.length === 2
+        )
+      default:
+        return false
+    }
+  })
 }

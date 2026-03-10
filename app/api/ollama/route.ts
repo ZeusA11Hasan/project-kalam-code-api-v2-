@@ -1,19 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import { studentDb, type StudentProfile } from "@/lib/db/studentProfile";
-import { chatWithSarvam } from "@/lib/llm/sarvamClient";
+import { NextRequest, NextResponse } from "next/server"
+import { studentDb, type StudentProfile } from "@/lib/db/studentProfile"
+import { chatWithSarvam } from "@/lib/llm/sarvamClient"
 
-export const runtime = "nodejs";
+export const runtime = "nodejs"
 
-const TIMEOUT_MS = 60000;
+const TIMEOUT_MS = 60000
 
 // ─── TIMEOUT PROTECTION ──────────────────────────────────
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-    return Promise.race([
-        promise,
-        new Promise<T>((_, reject) =>
-            setTimeout(() => reject(new Error("Timeout")), ms)
-        )
-    ]);
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error("Timeout")), ms)
+    )
+  ])
 }
 
 const DUAL_STREAM_SYSTEM_PROMPT = `
@@ -206,21 +206,21 @@ STRICT LIMITS
   Then redirect: "Python-ல என்ன தெரிஞ்சுக்கணும்?"
 - Never refuse a Python question
 - Never give one-line shallow answers — always go deep
-`;
+`
 
-const TEACH_SYSTEM_PROMPT = `${DUAL_STREAM_SYSTEM_PROMPT}`;
-const CHAT_SYSTEM_PROMPT = `${DUAL_STREAM_SYSTEM_PROMPT} `;
+const TEACH_SYSTEM_PROMPT = `${DUAL_STREAM_SYSTEM_PROMPT}`
+const CHAT_SYSTEM_PROMPT = `${DUAL_STREAM_SYSTEM_PROMPT} `
 const SQL_TUTOR_SYSTEM_PROMPT = `${DUAL_STREAM_SYSTEM_PROMPT}
 
 SPECIAL RULE FOR SQL:
 - The student is working with a database containing table: users(id, name, age).
-- Always show a SAMPLE TABLE DATA block as comments in the CODE section.`;
+- Always show a SAMPLE TABLE DATA block as comments in the CODE section.`
 
 const REVIEW_SYSTEM_PROMPT = `${DUAL_STREAM_SYSTEM_PROMPT}
 
 MODE: Debugging / Code Review.
 - ---TEACH---: Give exactly 2 sentences explaining the bug and 1 sentence explaining the fix.
-- ---CODE---: Provide only the corrected, runnable code solution.`;
+- ---CODE---: Provide only the corrected, runnable code solution.`
 
 const WRAP_UP_SYSTEM_PROMPT = `
 You are an AI Tutor wrapping up a learning session.
@@ -239,16 +239,16 @@ JSON STRUCTURE:
                         "student_confidence_signal": "high | medium | low",
                             "topic_stack": ["Current Stack"]
 }
-`;
+`
 
 // ─── ADAPTIVE TUTOR CONTEXT BUILDER ──────────────────────────────
 // Builds a context block from the student's persistent profile that
 // gets prepended to every system prompt.
 
 function buildAdaptiveTutorContext(profile: StudentProfile): string {
-    const sections: string[] = [];
+  const sections: string[] = []
 
-    sections.push(`
+  sections.push(`
 ════════════════════════════════════════════════════════════════
 ADAPTIVE TUTOR — STUDENT MEMORY CONTEXT
 ════════════════════════════════════════════════════════════════
@@ -257,56 +257,74 @@ You have PERSISTENT MEMORY of this student across all sessions.
 Use this context ACTIVELY.Never make the student repeat themselves.
 Reference past topics naturally.Example: "Last time we covered
 basic loops.Today lets go deeper."
-`);
+`)
 
-    // Student identity
-    sections.push(`STUDENT NAME: ${profile.display_name} `);
+  // Student identity
+  sections.push(`STUDENT NAME: ${profile.display_name} `)
 
-    // Past topics
-    if (profile.past_topics.length > 0) {
-        sections.push(`\nTOPICS PREVIOUSLY COVERED: \n${profile.past_topics.map(t => `  - ${t}`).join('\n')} `);
-    } else {
-        sections.push(`\nTOPICS PREVIOUSLY COVERED: None yet.This appears to be a new student.`);
-    }
+  // Past topics
+  if (profile.past_topics.length > 0) {
+    sections.push(
+      `\nTOPICS PREVIOUSLY COVERED: \n${profile.past_topics.map(t => `  - ${t}`).join("\n")} `
+    )
+  } else {
+    sections.push(
+      `\nTOPICS PREVIOUSLY COVERED: None yet.This appears to be a new student.`
+    )
+  }
 
-    // Mastery vs struggle
-    if (profile.concepts_mastered.length > 0) {
-        sections.push(`\nCONCEPTS MASTERED(do not re - explain basics, build on these): \n${profile.concepts_mastered.map(c => `  ✓ ${c}`).join('\n')} `);
-    }
-    if (profile.concepts_needing_revision.length > 0) {
-        sections.push(`\nCONCEPTS NEEDING REVISION(be extra patient and clear here): \n${profile.concepts_needing_revision.map(c => `  ✗ ${c}`).join('\n')} `);
-    }
+  // Mastery vs struggle
+  if (profile.concepts_mastered.length > 0) {
+    sections.push(
+      `\nCONCEPTS MASTERED(do not re - explain basics, build on these): \n${profile.concepts_mastered.map(c => `  ✓ ${c}`).join("\n")} `
+    )
+  }
+  if (profile.concepts_needing_revision.length > 0) {
+    sections.push(
+      `\nCONCEPTS NEEDING REVISION(be extra patient and clear here): \n${profile.concepts_needing_revision.map(c => `  ✗ ${c}`).join("\n")} `
+    )
+  }
 
-    // Last session
-    if (profile.last_session_summary) {
-        sections.push(`\nLAST SESSION SUMMARY: \n${profile.last_session_summary} `);
-    }
+  // Last session
+  if (profile.last_session_summary) {
+    sections.push(`\nLAST SESSION SUMMARY: \n${profile.last_session_summary} `)
+  }
 
-    // Suggested next topic
-    if (profile.suggested_next_topic) {
-        sections.push(`\nSUGGESTED NEXT TOPIC(from last session): ${profile.suggested_next_topic} `);
-    }
+  // Suggested next topic
+  if (profile.suggested_next_topic) {
+    sections.push(
+      `\nSUGGESTED NEXT TOPIC(from last session): ${profile.suggested_next_topic} `
+    )
+  }
 
-    // Student confidence
-    sections.push(`\nSTUDENT CONFIDENCE LEVEL: ${profile.student_confidence_signal} `);
+  // Student confidence
+  sections.push(
+    `\nSTUDENT CONFIDENCE LEVEL: ${profile.student_confidence_signal} `
+  )
 
-    // Explanation style rotation
-    const stylesUsed = Object.entries(profile.explanation_styles_used);
-    if (stylesUsed.length > 0) {
-        const styleLines = stylesUsed.map(([topic, styles]) =>
-            `  ${topic}: [${styles.join(', ')}]`
-        ).join('\n');
-        sections.push(`\nEXPLANATION STYLES ALREADY USED(rotate to a new style): \n${styleLines} `);
-        sections.push(`Available styles to rotate through: code example, analogy, diagram description, real - world example, step - by - step walkthrough`);
-    }
+  // Explanation style rotation
+  const stylesUsed = Object.entries(profile.explanation_styles_used)
+  if (stylesUsed.length > 0) {
+    const styleLines = stylesUsed
+      .map(([topic, styles]) => `  ${topic}: [${styles.join(", ")}]`)
+      .join("\n")
+    sections.push(
+      `\nEXPLANATION STYLES ALREADY USED(rotate to a new style): \n${styleLines} `
+    )
+    sections.push(
+      `Available styles to rotate through: code example, analogy, diagram description, real - world example, step - by - step walkthrough`
+    )
+  }
 
-    // Topic stack from last session
-    if (profile.topic_stack.length > 0) {
-        sections.push(`\nTOPIC STACK(from where we left off): \n  ${profile.topic_stack.join(' → ')} `);
-    }
+  // Topic stack from last session
+  if (profile.topic_stack.length > 0) {
+    sections.push(
+      `\nTOPIC STACK(from where we left off): \n  ${profile.topic_stack.join(" → ")} `
+    )
+  }
 
-    // Context-aware conversation rules
-    sections.push(`
+  // Context-aware conversation rules
+  sections.push(`
 ════════════════════════════════════════════════════════════════
 CONTEXT - AWARE CONVERSATION RULES
 ════════════════════════════════════════════════════════════════
@@ -335,9 +353,9 @@ NEW_TOPIC | FOLLOW_UP | CONFUSION | REVISION_REQUEST | PRACTICE_REQUEST
 - Begin by briefly acknowledging where the student IS(1 line max)
     - End every explanation with ONE of: check question, hint to try,
      or bridge to next concept — never stop cold.
-`);
+`)
 
-    return sections.join('\n');
+  return sections.join("\n")
 }
 
 // ─── ROBUST CODE EXTRACTOR ──────────────────────────────────
@@ -345,139 +363,188 @@ NEW_TOPIC | FOLLOW_UP | CONFUSION | REVISION_REQUEST | PRACTICE_REQUEST
 // then ---TEACH---/---CODE--- tags, then markdown fenced blocks.
 
 function extractCode(response: string): string {
-    // Strategy 1: Find CODE: section (our primary format)
-    const codeSectionMatch = response.match(/\nCODE:\s*\n([\s\S]*?)(?=\n[A-Z]{3,}[A-Z ]*:|$)/);
-    if (codeSectionMatch && codeSectionMatch[1].trim()) {
-        console.log("[Extract] Code found via CODE: section");
-        return codeSectionMatch[1].trim();
-    }
+  // Strategy 1: Find CODE: section (our primary format)
+  const codeSectionMatch = response.match(
+    /\nCODE:\s*\n([\s\S]*?)(?=\n[A-Z]{3,}[A-Z ]*:|$)/
+  )
+  if (codeSectionMatch && codeSectionMatch[1].trim()) {
+    console.log("[Extract] Code found via CODE: section")
+    return codeSectionMatch[1].trim()
+  }
 
-    // Strategy 2: Find ---CODE--- tag (legacy format)
-    const tagMatch = response.match(/---CODE---([\s\S]*?)$/i);
-    if (tagMatch && tagMatch[1].trim()) {
-        console.log("[Extract] Code found via ---CODE--- tag");
-        return tagMatch[1].trim();
-    }
+  // Strategy 2: Find ---CODE--- tag (legacy format)
+  const tagMatch = response.match(/---CODE---([\s\S]*?)$/i)
+  if (tagMatch && tagMatch[1].trim()) {
+    console.log("[Extract] Code found via ---CODE--- tag")
+    return tagMatch[1].trim()
+  }
 
-    // Strategy 3: Find ```python code blocks
-    const pythonFence = response.match(/```python\n([\s\S]*?)```/);
-    if (pythonFence && pythonFence[1].trim()) {
-        console.log("[Extract] Code found via ```python fence");
-        return pythonFence[1].trim();
-    }
+  // Strategy 3: Find ```python code blocks
+  const pythonFence = response.match(/```python\n([\s\S]*?)```/)
+  if (pythonFence && pythonFence[1].trim()) {
+    console.log("[Extract] Code found via ```python fence")
+    return pythonFence[1].trim()
+  }
 
-    // Strategy 4: Find any ``` code block
-    const anyFence = response.match(/```\n?([\s\S]*?)```/);
-    if (anyFence && anyFence[1].trim()) {
-        console.log("[Extract] Code found via generic ``` fence");
-        return anyFence[1].trim();
-    }
+  // Strategy 4: Find any ``` code block
+  const anyFence = response.match(/```\n?([\s\S]*?)```/)
+  if (anyFence && anyFence[1].trim()) {
+    console.log("[Extract] Code found via generic ``` fence")
+    return anyFence[1].trim()
+  }
 
-    console.log("[Extract] No code block found in response");
-    return "";
+  console.log("[Extract] No code block found in response")
+  return ""
 }
 
 function extractExplanation(response: string): string {
-    // Strategy 1: Get EXPLANATION: section (our primary format)
-    const explMatch = response.match(/EXPLANATION:\s*\n([\s\S]*?)(?=\nCODE:\s*\n)/);
-    if (explMatch && explMatch[1].trim()) {
-        console.log("[Extract] Explanation found via EXPLANATION: section");
-        return explMatch[1].trim();
-    }
+  // Strategy 1: Get EXPLANATION: section (our primary format)
+  const explMatch = response.match(
+    /EXPLANATION:\s*\n([\s\S]*?)(?=\nCODE:\s*\n)/
+  )
+  if (explMatch && explMatch[1].trim()) {
+    console.log("[Extract] Explanation found via EXPLANATION: section")
+    return explMatch[1].trim()
+  }
 
-    // Strategy 2: Get ---TEACH--- tag content (legacy format)
-    const tagMatch = response.match(/---TEACH---([\s\S]*?)(?=---CODE---|$)/i);
-    if (tagMatch && tagMatch[1].trim()) {
-        console.log("[Extract] Explanation found via ---TEACH--- tag");
-        return tagMatch[1].trim();
-    }
+  // Strategy 2: Get ---TEACH--- tag content (legacy format)
+  const tagMatch = response.match(/---TEACH---([\s\S]*?)(?=---CODE---|$)/i)
+  if (tagMatch && tagMatch[1].trim()) {
+    console.log("[Extract] Explanation found via ---TEACH--- tag")
+    return tagMatch[1].trim()
+  }
 
-    // Strategy 3: Everything before CODE: or ---CODE--- or first ``` block
-    const beforeCode = response.split(/\nCODE:\s*\n|---CODE---|```python|```\n/)[0];
-    const cleaned = beforeCode
-        .replace(/^EXPLANATION:\s*\n?/, "")
-        .replace(/^---TEACH---\s*\n?/i, "")
-        .trim();
-    if (cleaned) {
-        console.log("[Extract] Explanation found via split-before-code");
-        return cleaned;
-    }
+  // Strategy 3: Everything before CODE: or ---CODE--- or first ``` block
+  const beforeCode = response.split(
+    /\nCODE:\s*\n|---CODE---|```python|```\n/
+  )[0]
+  const cleaned = beforeCode
+    .replace(/^EXPLANATION:\s*\n?/, "")
+    .replace(/^---TEACH---\s*\n?/i, "")
+    .trim()
+  if (cleaned) {
+    console.log("[Extract] Explanation found via split-before-code")
+    return cleaned
+  }
 
-    // Final fallback: return everything
-    console.log("[Extract] Explanation fallback — returning full response");
-    return response.trim();
+  // Final fallback: return everything
+  console.log("[Extract] Explanation fallback — returning full response")
+  return response.trim()
 }
 
 // Legacy wrapper for backward compatibility
 function parseTagResponse(raw: string): { explanation: string; code: string } {
-    return {
-        explanation: extractExplanation(raw),
-        code: extractCode(raw)
-    };
+  return {
+    explanation: extractExplanation(raw),
+    code: extractCode(raw)
+  }
 }
 
 // ─── API HANDLER ─────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-    console.log("Sarvam API: Received request");
+  console.log("Sarvam API: Received request")
+  try {
+    const body = await req.json()
+    const {
+      mode,
+      question,
+      code,
+      output,
+      error,
+      messages,
+      language,
+      studentId = "default",
+      detectedLanguage
+    } = body
+    console.log("Sarvam API: Request body parsed", {
+      mode,
+      hasMessages: !!messages,
+      language,
+      studentId,
+      detectedLanguage
+    })
+
+    // 0) Load student profile for adaptive context
+    let studentContext = ""
     try {
-        const body = await req.json();
-        const { mode, question, code, output, error, messages, language, studentId = 'default', detectedLanguage } = body;
-        console.log("Sarvam API: Request body parsed", { mode, hasMessages: !!messages, language, studentId, detectedLanguage });
+      const profile = studentDb.getProfile(studentId)
+      studentContext = buildAdaptiveTutorContext(profile)
+      console.log(
+        `Sarvam API: Student profile loaded — ${profile.past_topics.length} past topics, confidence: ${profile.student_confidence_signal} `
+      )
+    } catch (profileErr) {
+      console.warn(
+        "Sarvam API: Could not load student profile, continuing without context:",
+        profileErr
+      )
+    }
 
-        // 0) Load student profile for adaptive context
-        let studentContext = '';
-        try {
-            const profile = studentDb.getProfile(studentId);
-            studentContext = buildAdaptiveTutorContext(profile);
-            console.log(`Sarvam API: Student profile loaded — ${profile.past_topics.length} past topics, confidence: ${profile.student_confidence_signal} `);
-        } catch (profileErr) {
-            console.warn('Sarvam API: Could not load student profile, continuing without context:', profileErr);
-        }
+    // 1) Identify mode and build prompt
+    const isSql = language === "sql"
+    let activeMode = mode
+    let systemPrompt = ""
+    let userPrompt = ""
 
-        // 1) Identify mode and build prompt
-        const isSql = language === 'sql';
-        let activeMode = mode;
-        let systemPrompt = "";
-        let userPrompt = "";
+    // Build conversation history for context-aware follow-ups
+    let conversationContext = ""
+    if (messages && Array.isArray(messages) && messages.length > 1) {
+      // Include last 10 messages for proper pronoun/reference resolution
+      const recentMessages = messages.slice(-10)
+      conversationContext =
+        "\n\nCONVERSATION HISTORY (for context resolution):\n" +
+        recentMessages
+          .map(
+            (m: any) =>
+              `${m.role === "user" ? "Student" : "Tutor"}: ${m.content} `
+          )
+          .join("\n")
+    }
 
-        // Build conversation history for context-aware follow-ups
-        let conversationContext = '';
-        if (messages && Array.isArray(messages) && messages.length > 1) {
-            // Include last 10 messages for proper pronoun/reference resolution
-            const recentMessages = messages.slice(-10);
-            conversationContext = '\n\nCONVERSATION HISTORY (for context resolution):\n' +
-                recentMessages.map((m: any) => `${m.role === 'user' ? 'Student' : 'Tutor'}: ${m.content} `).join('\n');
-        }
+    if (!activeMode && messages && Array.isArray(messages)) {
+      activeMode = "chat"
+      systemPrompt = isSql
+        ? SQL_TUTOR_SYSTEM_PROMPT
+        : CHAT_SYSTEM_PROMPT +
+          "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations."
+      userPrompt = messages[messages.length - 1]?.content || "Hello"
+    } else if (activeMode === "teach") {
+      systemPrompt = isSql
+        ? SQL_TUTOR_SYSTEM_PROMPT
+        : TEACH_SYSTEM_PROMPT +
+          "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations."
+      userPrompt = `Teach me about: ${question || (isSql ? "SQL basics." : "Python basics.")} \n\nContext code(if any): ${code || "None"} `
+    } else if (activeMode === "review") {
+      systemPrompt = isSql
+        ? SQL_TUTOR_SYSTEM_PROMPT
+        : REVIEW_SYSTEM_PROMPT +
+          "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations."
+      userPrompt = `Review and debug this ${isSql ? "SQL query" : "Python code"}: \n\n${code || ""} \n\nExecution Output: \n${output || "None"} \n\nExecution Error: \n${error || "None"} `
+    } else if (activeMode === "wrap_up") {
+      systemPrompt = WRAP_UP_SYSTEM_PROMPT
+      userPrompt =
+        "Please generate the session summary based on our conversation."
+    } else {
+      console.error("Sarvam API: Invalid mode requested", { mode })
+      return NextResponse.json(
+        {
+          error:
+            "Invalid mode. Use 'teach' or 'review', or provide 'messages' for chat."
+        },
+        { status: 400 }
+      )
+    }
 
-        if (!activeMode && messages && Array.isArray(messages)) {
-            activeMode = "chat";
-            systemPrompt = isSql ? SQL_TUTOR_SYSTEM_PROMPT : CHAT_SYSTEM_PROMPT + "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations.";
-            userPrompt = messages[messages.length - 1]?.content || "Hello";
-        } else if (activeMode === "teach") {
-            systemPrompt = isSql ? SQL_TUTOR_SYSTEM_PROMPT : TEACH_SYSTEM_PROMPT + "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations.";
-            userPrompt = `Teach me about: ${question || (isSql ? "SQL basics." : "Python basics.")} \n\nContext code(if any): ${code || "None"} `;
-        } else if (activeMode === "review") {
-            systemPrompt = isSql ? SQL_TUTOR_SYSTEM_PROMPT : REVIEW_SYSTEM_PROMPT + "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations.";
-            userPrompt = `Review and debug this ${isSql ? 'SQL query' : 'Python code'}: \n\n${code || ""} \n\nExecution Output: \n${output || "None"} \n\nExecution Error: \n${error || "None"} `;
-        } else if (activeMode === "wrap_up") {
-            systemPrompt = WRAP_UP_SYSTEM_PROMPT;
-            userPrompt = "Please generate the session summary based on our conversation.";
-        } else {
-            console.error("Sarvam API: Invalid mode requested", { mode });
-            return NextResponse.json({ error: "Invalid mode. Use 'teach' or 'review', or provide 'messages' for chat." }, { status: 400 });
-        }
-
-        // Language instruction — default to Tamil (Tanglish) for rural students
-        // Only switch to Hindi if explicitly Hindi detected
-        let languageInstruction = "";
-        if (detectedLanguage && detectedLanguage.startsWith("hi")) {
-            languageInstruction = `IMPORTANT: The student is speaking in Hindi.
+    // Language instruction — default to Tamil (Tanglish) for rural students
+    // Only switch to Hindi if explicitly Hindi detected
+    let languageInstruction = ""
+    if (detectedLanguage && detectedLanguage.startsWith("hi")) {
+      languageInstruction = `IMPORTANT: The student is speaking in Hindi.
 Teach in Hindi but keep technical / scientific terms in English.
-Speak like a friendly school teacher, simple conversational Hindi.`;
-        } else {
-            // Default: Tamil+English mix (Tanglish) for ta-IN, en-IN, unknown, or any other
-            languageInstruction = `IMPORTANT: Respond in Tamil+English mix (Tanglish).
+Speak like a friendly school teacher, simple conversational Hindi.`
+    } else {
+      // Default: Tamil+English mix (Tanglish) for ta-IN, en-IN, unknown, or any other
+      languageInstruction = `IMPORTANT: Respond in Tamil+English mix (Tanglish).
 Follow these exact language rules when responding:
 
 TEACH in Tamil — explanations, storytelling, encouragement,
@@ -500,111 +567,140 @@ EXAMPLE of correct style:
 
 Do NOT write fully in English.
 Do NOT write in overly formal Tamil.
-Mix naturally — Tamil flow, English technical words only.`;
-        }
-
-        // Prepend student context + conversation history to system prompt
-        systemPrompt = (languageInstruction ? languageInstruction + '\n\n' : '') + studentContext + '\n\n' + systemPrompt + conversationContext;
-
-        // Final Brevity Guard + Format Reminder
-        userPrompt += "\n\n(REMEMBER: Keep it short and sweet. Max 150 words for EXPLANATION. ALWAYS include both EXPLANATION: and CODE: sections. Every code line MUST have a Tamil comment.)";
-
-        console.log(`Sarvam API: Processing mode[${activeMode}]`);
-
-        // 2) Call Sarvam AI via OpenAI-compatible chat completions
-        const sarvamMessages: { role: "user" | "assistant"; content: string }[] = [
-            { role: "user", content: userPrompt },
-        ];
-
-        const sarvamPromise = chatWithSarvam(sarvamMessages, systemPrompt);
-        const rawOutput = await withTimeout(sarvamPromise, TIMEOUT_MS);
-
-        // ──── CRITICAL DEBUG: trace the raw LLM output ─────────────
-        console.log("═══════════════════════════════════════════");
-        console.log("[DEBUG-1] rawOutput type:", typeof rawOutput);
-        console.log("[DEBUG-1] rawOutput length:", rawOutput.length);
-        console.log("[DEBUG-1] rawOutput first 500 chars:", rawOutput.slice(0, 500));
-        console.log("[DEBUG-1] contains <think>:", rawOutput.includes("<think>"));
-        console.log("[DEBUG-1] contains </think>:", rawOutput.includes("</think>"));
-        console.log("═══════════════════════════════════════════");
-
-        const parsed = parseTagResponse(rawOutput);
-
-        console.log("[DEBUG-2] parsed.explanation length:", parsed.explanation.length);
-        console.log("[DEBUG-2] parsed.code length:", parsed.code.length);
-
-        // EXTRA: Intent Detection for Name Updating
-        // If the student says "My name is X", update the DB profile
-        if (userPrompt.toLowerCase().includes("my name is")) {
-            const nameMatch = userPrompt.match(/my name is ([\w\s]+)/i);
-            if (nameMatch && nameMatch[1]) {
-                const newName = nameMatch[1].trim();
-                console.log(`[Profile] Detected name update: ${newName} `);
-                try {
-                    studentDb.updateName(studentId, newName);
-                } catch (e) {
-                    console.error("Failed to update name:", e);
-                }
-            }
-        }
-
-        // If tags were found, use parsed content; otherwise fallback to raw
-        const rawContent = parsed.explanation || rawOutput;
-
-        // Strip <think> blocks safely:
-        // 1. First remove properly closed <think>...</think> blocks
-        let stripped = rawContent.replace(/<think>[\s\S]*?<\/think>/g, "");
-        console.log("[DEBUG-3] after closed-think strip length:", stripped.trim().length);
-
-        // 2. Only strip unclosed <think> if one remains AND there's no </think> after it
-        if (stripped.includes("<think>") && !stripped.includes("</think>")) {
-            stripped = stripped.replace(/<think>[\s\S]*$/g, "");
-            console.log("[DEBUG-3] after unclosed-think strip length:", stripped.trim().length);
-        }
-        stripped = stripped.trim();
-
-        // Safety: if stripping removed everything, use the raw content with just basic cleanup
-        const taglessContent = rawContent.replace(/<\/?think>/g, "").trim();
-        console.log("[DEBUG-4] stripped length:", stripped.length);
-        console.log("[DEBUG-4] tagless fallback length:", taglessContent.length);
-
-        let rawExplanation = stripped || taglessContent;
-        let explanation = rawExplanation;
-        const codeOutput = parsed.code || "";
-
-        console.log("[DEBUG-5] final explanation length:", explanation.length);
-        console.log("[DEBUG-5] final explanation preview:", explanation.slice(0, 200));
-
-        // Special handling for Wrap Up mode — parse JSON and save to DB
-        if (activeMode === "wrap_up") {
-            try {
-                // Strip potential markdown code blocks
-                const jsonStr = rawExplanation.replace(/```json/g, "").replace(/```/g, "").trim();
-                const sessionSummary = JSON.parse(jsonStr);
-                studentDb.saveSession(studentId, sessionSummary);
-                console.log("[Profile] Wrap-up complete and saved to DB");
-                explanation = "Your session has been summarized and saved. See you next time!";
-            } catch (e) {
-                console.error("Failed to parse wrap-up summary:", e);
-                explanation = "I tried to summarize our session but encountered a technical error. Your progress is still safe!";
-            }
-        }
-
-        console.log(`Sarvam API: Parsed — explanation: ${explanation.length} chars, code: ${codeOutput.length} chars`);
-
-        return NextResponse.json({
-            explanation,
-            code: codeOutput,
-            // Keep review compatibility for IDE review mode
-            ...(activeMode === "review" ? { review: explanation, optimizedCode: codeOutput } : {})
-        });
-
-    } catch (err: any) {
-        console.error("Sarvam API Route Error (Deep):", err);
-        const status = err.message === "Timeout" ? 504 : 500;
-        return NextResponse.json({
-            error: err.message || "Internal Server Error",
-            details: "Check server logs for deep trace"
-        }, { status });
+Mix naturally — Tamil flow, English technical words only.`
     }
+
+    // Prepend student context + conversation history to system prompt
+    systemPrompt =
+      (languageInstruction ? languageInstruction + "\n\n" : "") +
+      studentContext +
+      "\n\n" +
+      systemPrompt +
+      conversationContext
+
+    // Final Brevity Guard + Format Reminder
+    userPrompt +=
+      "\n\n(REMEMBER: Keep it short and sweet. Max 150 words for EXPLANATION. ALWAYS include both EXPLANATION: and CODE: sections. Every code line MUST have a Tamil comment.)"
+
+    console.log(`Sarvam API: Processing mode[${activeMode}]`)
+
+    // 2) Call Sarvam AI via OpenAI-compatible chat completions
+    const sarvamMessages: { role: "user" | "assistant"; content: string }[] = [
+      { role: "user", content: userPrompt }
+    ]
+
+    const sarvamPromise = chatWithSarvam(sarvamMessages, systemPrompt)
+    const rawOutput = await withTimeout(sarvamPromise, TIMEOUT_MS)
+
+    // ──── CRITICAL DEBUG: trace the raw LLM output ─────────────
+    console.log("═══════════════════════════════════════════")
+    console.log("[DEBUG-1] rawOutput type:", typeof rawOutput)
+    console.log("[DEBUG-1] rawOutput length:", rawOutput.length)
+    console.log("[DEBUG-1] rawOutput first 500 chars:", rawOutput.slice(0, 500))
+    console.log("[DEBUG-1] contains <think>:", rawOutput.includes("<think>"))
+    console.log("[DEBUG-1] contains </think>:", rawOutput.includes("</think>"))
+    console.log("═══════════════════════════════════════════")
+
+    const parsed = parseTagResponse(rawOutput)
+
+    console.log(
+      "[DEBUG-2] parsed.explanation length:",
+      parsed.explanation.length
+    )
+    console.log("[DEBUG-2] parsed.code length:", parsed.code.length)
+
+    // EXTRA: Intent Detection for Name Updating
+    // If the student says "My name is X", update the DB profile
+    if (userPrompt.toLowerCase().includes("my name is")) {
+      const nameMatch = userPrompt.match(/my name is ([\w\s]+)/i)
+      if (nameMatch && nameMatch[1]) {
+        const newName = nameMatch[1].trim()
+        console.log(`[Profile] Detected name update: ${newName} `)
+        try {
+          studentDb.updateName(studentId, newName)
+        } catch (e) {
+          console.error("Failed to update name:", e)
+        }
+      }
+    }
+
+    // If tags were found, use parsed content; otherwise fallback to raw
+    const rawContent = parsed.explanation || rawOutput
+
+    // Strip <think> blocks safely:
+    // 1. First remove properly closed <think>...</think> blocks
+    let stripped = rawContent.replace(/<think>[\s\S]*?<\/think>/g, "")
+    console.log(
+      "[DEBUG-3] after closed-think strip length:",
+      stripped.trim().length
+    )
+
+    // 2. Only strip unclosed <think> if one remains AND there's no </think> after it
+    if (stripped.includes("<think>") && !stripped.includes("</think>")) {
+      stripped = stripped.replace(/<think>[\s\S]*$/g, "")
+      console.log(
+        "[DEBUG-3] after unclosed-think strip length:",
+        stripped.trim().length
+      )
+    }
+    stripped = stripped.trim()
+
+    // Safety: if stripping removed everything, use the raw content with just basic cleanup
+    const taglessContent = rawContent.replace(/<\/?think>/g, "").trim()
+    console.log("[DEBUG-4] stripped length:", stripped.length)
+    console.log("[DEBUG-4] tagless fallback length:", taglessContent.length)
+
+    let rawExplanation = stripped || taglessContent
+    let explanation = rawExplanation
+    const codeOutput = parsed.code || ""
+
+    console.log("[DEBUG-5] final explanation length:", explanation.length)
+    console.log(
+      "[DEBUG-5] final explanation preview:",
+      explanation.slice(0, 200)
+    )
+
+    // Special handling for Wrap Up mode — parse JSON and save to DB
+    if (activeMode === "wrap_up") {
+      try {
+        // Strip potential markdown code blocks
+        const jsonStr = rawExplanation
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim()
+        const sessionSummary = JSON.parse(jsonStr)
+        studentDb.saveSession(studentId, sessionSummary)
+        console.log("[Profile] Wrap-up complete and saved to DB")
+        explanation =
+          "Your session has been summarized and saved. See you next time!"
+      } catch (e) {
+        console.error("Failed to parse wrap-up summary:", e)
+        explanation =
+          "I tried to summarize our session but encountered a technical error. Your progress is still safe!"
+      }
+    }
+
+    console.log(
+      `Sarvam API: Parsed — explanation: ${explanation.length} chars, code: ${codeOutput.length} chars`
+    )
+
+    return NextResponse.json({
+      explanation,
+      code: codeOutput,
+      // Keep review compatibility for IDE review mode
+      ...(activeMode === "review"
+        ? { review: explanation, optimizedCode: codeOutput }
+        : {})
+    })
+  } catch (err: any) {
+    console.error("Sarvam API Route Error (Deep):", err)
+    const status = err.message === "Timeout" ? 504 : 500
+    return NextResponse.json(
+      {
+        error: err.message || "Internal Server Error",
+        details: "Check server logs for deep trace"
+      },
+      { status }
+    )
+  }
 }

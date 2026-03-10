@@ -189,12 +189,14 @@ export const Message: FC<MessageProps> = ({
       onMouseLeave={() => setIsHovering(false)}
       onKeyDown={handleKeyDown}
     >
-      <div className={cn(
-        "relative flex w-full flex-col rounded-2xl p-6 transition-all duration-300 sm:w-[550px] sm:px-6 md:w-[650px] lg:w-[650px] xl:w-[700px]",
-        message.role === "user"
-          ? "border border-white/10 bg-gradient-to-br from-purple-600/80 to-pink-600/80 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)]"
-          : "glass text-white/90 hover:bg-white/5"
-      )}>
+      <div
+        className={cn(
+          "relative flex w-full flex-col rounded-2xl p-6 transition-all duration-300 sm:w-[550px] sm:px-6 md:w-[650px] lg:w-[650px] xl:w-[700px]",
+          message.role === "user"
+            ? "border border-white/10 bg-gradient-to-br from-purple-600/80 to-pink-600/80 text-white shadow-[0_0_20px_rgba(147,51,234,0.3)]"
+            : "glass text-white/90 hover:bg-white/5"
+        )}
+      >
         <div className="absolute right-5 top-7 sm:right-4">
           <MessageActions
             onCopy={handleCopy}
@@ -264,8 +266,8 @@ export const Message: FC<MessageProps> = ({
                 {message.role === "assistant"
                   ? message.assistant_id
                     ? assistants.find(
-                      assistant => assistant.id === message.assistant_id
-                    )?.name
+                        assistant => assistant.id === message.assistant_id
+                      )?.name
                     : selectedAssistant
                       ? selectedAssistant?.name
                       : MODEL_DATA?.modelName
@@ -274,15 +276,18 @@ export const Message: FC<MessageProps> = ({
             </div>
           )}
           {!firstTokenReceived &&
-            isGenerating &&
-            isLast &&
-            message.role === "assistant" ? (
+          isGenerating &&
+          isLast &&
+          message.role === "assistant" ? (
             <>
               {(() => {
                 switch (toolInUse) {
                   case "none":
                     return (
-                      <IconCircleFilled className="animate-pulse text-purple-400" size={20} />
+                      <IconCircleFilled
+                        className="animate-pulse text-purple-400"
+                        size={20}
+                      />
                     )
                   case "retrieval":
                     return (
@@ -413,11 +418,20 @@ export const Message: FC<MessageProps> = ({
         </div>
         {isEditing && (
           <div className="mt-4 flex justify-center space-x-2">
-            <Button size="sm" onClick={handleSendEdit} className="bg-purple-600 text-white hover:bg-purple-700">
+            <Button
+              size="sm"
+              onClick={handleSendEdit}
+              className="bg-purple-600 text-white hover:bg-purple-700"
+            >
               Save & Send
             </Button>
 
-            <Button size="sm" variant="outline" onClick={onCancelEdit} className="border-white/20 text-white hover:bg-white/10">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onCancelEdit}
+              className="border-white/20 text-white hover:bg-white/10"
+            >
               Cancel
             </Button>
           </div>

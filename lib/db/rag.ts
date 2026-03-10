@@ -1,13 +1,13 @@
-import Database from 'better-sqlite3';
-import path from 'path';
+import Database from "better-sqlite3"
+import path from "path"
 
-const DB_PATH = path.resolve(process.cwd(), 'local-rag.db');
+const DB_PATH = path.resolve(process.cwd(), "local-rag.db")
 
 // Initialize DB
-const db = new Database(DB_PATH);
+const db = new Database(DB_PATH)
 
 // Enable WAL mode for better concurrency
-db.pragma('journal_mode = WAL');
+db.pragma("journal_mode = WAL")
 
 // Ensure Table Exists
 db.exec(`
@@ -23,24 +23,24 @@ db.exec(`
     priority INTEGER DEFAULT 1, -- 1=NCERT, 2=GUIDE
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
-`);
+`)
 
 // Migration: Add priority column if it doesn't exist (for existing DBs)
 try {
-  db.exec('ALTER TABLE rag_chunks ADD COLUMN priority INTEGER DEFAULT 1');
+  db.exec("ALTER TABLE rag_chunks ADD COLUMN priority INTEGER DEFAULT 1")
 } catch (e) {
   // Column likely exists, ignore
 }
 
 export interface RagChunk {
-  content: string;
-  embedding: number[];
-  source: string;
-  class: string;
-  subject: string;
-  chapter: string;
-  pageRange: string;
-  priority?: number; // Optional, defaults to 1
+  content: string
+  embedding: number[]
+  source: string
+  class: string
+  subject: string
+  chapter: string
+  pageRange: string
+  priority?: number // Optional, defaults to 1
 }
 
 export const ragDb = {
@@ -48,7 +48,7 @@ export const ragDb = {
     const stmt = db.prepare(`
       INSERT INTO rag_chunks (content, embedding, source, class, subject, chapter, page_range, priority)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
+    `)
 
     stmt.run(
       chunk.content,
@@ -59,19 +59,26 @@ export const ragDb = {
       chunk.chapter,
       chunk.pageRange,
       chunk.priority || 1
-    );
+    )
   },
 
   // Helper to check stats
   getStats: () => {
-    const stmt = db.prepare('SELECT COUNT(*) as count FROM rag_chunks');
-    const result = stmt.get() as { count: number };
-    return result.count;
+    const stmt = db.prepare("SELECT COUNT(*) as count FROM rag_chunks")
+    const result = stmt.get() as { count: number }
+    return result.count
   },
 
   // Fetch all chunks for in-memory vector search (efficient enough for <100k chunks)
   fetchAllChunks: () => {
-    const stmt = db.prepare('SELECT content, embedding, source, priority FROM rag_chunks');
-    return stmt.all() as { content: string; embedding: string; source: string; priority: number }[];
+    const stmt = db.prepare(
+      "SELECT content, embedding, source, priority FROM rag_chunks"
+    )
+    return stmt.all() as {
+      content: string
+      embedding: string
+      source: string
+      priority: number
+    }[]
   }
-};
+}

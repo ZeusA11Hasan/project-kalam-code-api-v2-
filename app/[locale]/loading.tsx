@@ -14,7 +14,10 @@ export default function Loading() {
   if (!show) return null
 
   return (
-    <div className="animate-fadeOut fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-2xl" style={{ animationDelay: '6s', animationDuration: '1s' }}>
+    <div
+      className="animate-fadeOut fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-2xl"
+      style={{ animationDelay: "6s", animationDuration: "1s" }}
+    >
       {/* Animated background glow */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-1/2 size-96 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-white/10 blur-3xl"></div>
@@ -30,16 +33,27 @@ export default function Loading() {
           <span className="text-lg font-medium text-white">Loading</span>
           <div className="flex gap-1">
             <span className="size-1.5 animate-bounce rounded-full bg-white"></span>
-            <span className="size-1.5 animate-bounce rounded-full bg-white" style={{ animationDelay: '0.1s' }}></span>
-            <span className="size-1.5 animate-bounce rounded-full bg-white" style={{ animationDelay: '0.2s' }}></span>
+            <span
+              className="size-1.5 animate-bounce rounded-full bg-white"
+              style={{ animationDelay: "0.1s" }}
+            ></span>
+            <span
+              className="size-1.5 animate-bounce rounded-full bg-white"
+              style={{ animationDelay: "0.2s" }}
+            ></span>
           </div>
         </div>
       </div>
 
       <style jsx>{`
         @keyframes fadeOut {
-          from { opacity: 1; }
-          to { opacity: 0; pointer-events: none; }
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+            pointer-events: none;
+          }
         }
         .animate-fadeOut {
           animation-fill-mode: forwards;

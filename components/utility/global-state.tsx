@@ -124,7 +124,7 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
   const [toolInUse, setToolInUse] = useState<string>("none")
 
   useEffect(() => {
-    ; (async () => {
+    ;(async () => {
       const profile = await fetchStartingData()
 
       if (profile) {
@@ -165,7 +165,9 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
         profile = await createProfile({
           user_id: user.id,
           display_name: user.email?.split("@")[0] || "Learner",
-          username: (user.email?.split("@")[0] || "user") + Math.random().toString(36).substring(7),
+          username:
+            (user.email?.split("@")[0] || "user") +
+            Math.random().toString(36).substring(7),
           bio: "I am a student at AI Tutor.",
           image_path: "",
           image_url: "",
