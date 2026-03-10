@@ -569,7 +569,7 @@ export default function HomePage() {
     abortControllerRef.current = new AbortController()
 
     try {
-      const response = await fetch("/api/ollama", {
+      const response = await fetch("/api/chat/tutor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: abortControllerRef.current.signal,
@@ -597,7 +597,7 @@ export default function HomePage() {
       if (!contentType || !contentType.includes("application/json")) {
         const errText = await response.text()
         console.error("Non-JSON Response:", errText.slice(0, 200))
-        throw new TypeError("Expected JSON response from /api/ollama")
+        throw new TypeError("Expected JSON response from /api/chat/tutor")
       }
 
       // Safely parse JSON to handle Tamil unicode edge cases
@@ -1140,24 +1140,24 @@ export default function HomePage() {
                   isResizing
                     ? { duration: 0.1 }
                     : {
-                        y: {
+                      y: {
+                        type: "spring",
+                        stiffness: 220,
+                        damping: 24,
+                        mass: 1.8
+                      },
+                      layout: isWhiteboardOpen
+                        ? {
                           type: "spring",
-                          stiffness: 220,
-                          damping: 24,
-                          mass: 1.8
-                        },
-                        layout: isWhiteboardOpen
-                          ? {
-                              type: "spring",
-                              stiffness: 260,
-                              damping: 26,
-                              mass: 1.5
-                            }
-                          : { duration: 1.1, ease: [0.19, 1, 0.22, 1] },
-                        opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-                        scale: { type: "spring", stiffness: 220, damping: 24 },
-                        filter: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-                      }
+                          stiffness: 260,
+                          damping: 26,
+                          mass: 1.5
+                        }
+                        : { duration: 1.1, ease: [0.19, 1, 0.22, 1] },
+                      opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                      scale: { type: "spring", stiffness: 220, damping: 24 },
+                      filter: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+                    }
                 }
                 style={{
                   background:
@@ -1498,19 +1498,19 @@ export default function HomePage() {
                       transition: isResizing
                         ? { duration: 0.1 }
                         : {
-                            y: {
-                              type: "spring",
-                              stiffness: 220,
-                              damping: 24,
-                              mass: 1.8
-                            },
-                            scale: {
-                              type: "spring",
-                              stiffness: 220,
-                              damping: 24
-                            },
-                            opacity: { duration: 0.4, ease: "easeOut" }
-                          }
+                          y: {
+                            type: "spring",
+                            stiffness: 220,
+                            damping: 24,
+                            mass: 1.8
+                          },
+                          scale: {
+                            type: "spring",
+                            stiffness: 220,
+                            damping: 24
+                          },
+                          opacity: { duration: 0.4, ease: "easeOut" }
+                        }
                     }}
                     exit={{
                       x: "100%",
