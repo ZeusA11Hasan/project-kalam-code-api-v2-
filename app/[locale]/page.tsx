@@ -650,8 +650,8 @@ export default function HomePage() {
       }
       setMessages(prev => [...prev, aiMessage])
 
-      // 🔊 Auto-speak AI response if call is active OR message was voice-initiated
-      if (isCallActiveRef.current || voiceModeEnabled) {
+      // 🔊 Auto-speak AI response ONLY if call is active AND voice mode is enabled
+      if (isCallActiveRef.current && voiceModeEnabled) {
         const finalLang = langCode || detectedLanguage
         // Always Tamil unless Hindi — rural student default
         const speakLangCode = finalLang.startsWith("hi") ? "hi-IN" : "ta-IN" // Always Tamil unless Hindi
@@ -1138,24 +1138,24 @@ export default function HomePage() {
                   isResizing
                     ? { duration: 0.1 }
                     : {
-                        y: {
+                      y: {
+                        type: "spring",
+                        stiffness: 220,
+                        damping: 24,
+                        mass: 1.8
+                      },
+                      layout: isWhiteboardOpen
+                        ? {
                           type: "spring",
-                          stiffness: 220,
-                          damping: 24,
-                          mass: 1.8
-                        },
-                        layout: isWhiteboardOpen
-                          ? {
-                              type: "spring",
-                              stiffness: 260,
-                              damping: 26,
-                              mass: 1.5
-                            }
-                          : { duration: 1.1, ease: [0.19, 1, 0.22, 1] },
-                        opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-                        scale: { type: "spring", stiffness: 220, damping: 24 },
-                        filter: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-                      }
+                          stiffness: 260,
+                          damping: 26,
+                          mass: 1.5
+                        }
+                        : { duration: 1.1, ease: [0.19, 1, 0.22, 1] },
+                      opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                      scale: { type: "spring", stiffness: 220, damping: 24 },
+                      filter: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+                    }
                 }
                 style={{
                   background:
@@ -1496,19 +1496,19 @@ export default function HomePage() {
                       transition: isResizing
                         ? { duration: 0.1 }
                         : {
-                            y: {
-                              type: "spring",
-                              stiffness: 220,
-                              damping: 24,
-                              mass: 1.8
-                            },
-                            scale: {
-                              type: "spring",
-                              stiffness: 220,
-                              damping: 24
-                            },
-                            opacity: { duration: 0.4, ease: "easeOut" }
-                          }
+                          y: {
+                            type: "spring",
+                            stiffness: 220,
+                            damping: 24,
+                            mass: 1.8
+                          },
+                          scale: {
+                            type: "spring",
+                            stiffness: 220,
+                            damping: 24
+                          },
+                          opacity: { duration: 0.4, ease: "easeOut" }
+                        }
                     }}
                     exit={{
                       x: "100%",
