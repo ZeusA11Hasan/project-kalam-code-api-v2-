@@ -192,18 +192,16 @@ export default function HomePage() {
             "[Stats] User row not found, creating default:",
             error.message
           )
-          const { error: upsertError } = await supabase
-            .from("users")
-            .upsert(
-              {
-                id: user.id,
-                email: user.email,
-                xp: 0,
-                level: 1,
-                streak_count: 0
-              },
-              { onConflict: "id", ignoreDuplicates: true }
-            )
+          const { error: upsertError } = await supabase.from("users").upsert(
+            {
+              id: user.id,
+              email: user.email,
+              xp: 0,
+              level: 1,
+              streak_count: 0
+            },
+            { onConflict: "id", ignoreDuplicates: true }
+          )
           if (upsertError) {
             console.error(
               "[Stats] Failed to create user row:",
@@ -1140,24 +1138,24 @@ export default function HomePage() {
                   isResizing
                     ? { duration: 0.1 }
                     : {
-                      y: {
-                        type: "spring",
-                        stiffness: 220,
-                        damping: 24,
-                        mass: 1.8
-                      },
-                      layout: isWhiteboardOpen
-                        ? {
+                        y: {
                           type: "spring",
-                          stiffness: 260,
-                          damping: 26,
-                          mass: 1.5
-                        }
-                        : { duration: 1.1, ease: [0.19, 1, 0.22, 1] },
-                      opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-                      scale: { type: "spring", stiffness: 220, damping: 24 },
-                      filter: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-                    }
+                          stiffness: 220,
+                          damping: 24,
+                          mass: 1.8
+                        },
+                        layout: isWhiteboardOpen
+                          ? {
+                              type: "spring",
+                              stiffness: 260,
+                              damping: 26,
+                              mass: 1.5
+                            }
+                          : { duration: 1.1, ease: [0.19, 1, 0.22, 1] },
+                        opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                        scale: { type: "spring", stiffness: 220, damping: 24 },
+                        filter: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+                      }
                 }
                 style={{
                   background:
@@ -1498,19 +1496,19 @@ export default function HomePage() {
                       transition: isResizing
                         ? { duration: 0.1 }
                         : {
-                          y: {
-                            type: "spring",
-                            stiffness: 220,
-                            damping: 24,
-                            mass: 1.8
-                          },
-                          scale: {
-                            type: "spring",
-                            stiffness: 220,
-                            damping: 24
-                          },
-                          opacity: { duration: 0.4, ease: "easeOut" }
-                        }
+                            y: {
+                              type: "spring",
+                              stiffness: 220,
+                              damping: 24,
+                              mass: 1.8
+                            },
+                            scale: {
+                              type: "spring",
+                              stiffness: 220,
+                              damping: 24
+                            },
+                            opacity: { duration: 0.4, ease: "easeOut" }
+                          }
                     }}
                     exit={{
                       x: "100%",

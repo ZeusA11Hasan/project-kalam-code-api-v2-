@@ -1,5 +1,9 @@
 import { redirect } from "next/navigation"
 
-export default function SettingsPage({ params: { locale } }: { params: { locale: string } }) {
-    redirect(`/${locale}#settings`)
+export default function SettingsPage({
+  params: { locale }
+}: {
+  params: { locale: string }
+}) {
+  redirect(`/${locale}#settings`)
 }
