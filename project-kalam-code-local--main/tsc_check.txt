@@ -1,0 +1,8 @@
+﻿[96mcomponents/WhiteboardRenderer.tsx[0m:[93m286[0m:[93m13[0m - [91merror[0m[90m TS1128: [0mDeclaration or statement expected.
+
+[7m286[0m             );
+[7m   [0m [91m            ~[0m
+
+
+Found 1 error in components/WhiteboardRenderer.tsx[90m:286[0m
+

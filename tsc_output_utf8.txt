@@ -1,0 +1,1 @@
+﻿components/WhiteboardRenderer.tsx(286,13): error TS1128: Declaration or statement expected.

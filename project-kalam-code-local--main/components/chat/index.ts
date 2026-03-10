@@ -1,0 +1,12 @@
+// Chat Components - Clean UI Scaffold
+export { ChatLayout } from "./ChatLayout"
+export { ChatPanel } from "./ChatPanel"
+export { ChatInput } from "./ChatInput"
+export { MessageBubble, type Message } from "./MessageBubble"
+export { ModeButton } from "./ModeButton"
+export { MathChemRenderer, MathRenderer } from "./MathRenderer"
+export { FeatureDock } from "./FeatureDock"
+export { ModePanel } from "./ModePanel"
+export { SendButton } from "./SendButton"
+export { IconButton } from "./IconButton"
+export { FloatingDock, sectionItems } from "./FloatingDock"

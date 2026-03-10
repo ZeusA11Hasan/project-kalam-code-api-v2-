@@ -1,0 +1,40 @@
+.title-section {
+    width: 100%;
+    text-align: center;
+    margin-top: 140px;
+    margin-bottom: -40px;
+    /* adjust based on your layout */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .title-section {
+        margin-top: 90px;
+        margin-bottom: -40px;
+    }
+}
+
+/* Main Title (Bug-Free) */
+.hero-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 0;
+    padding: 0;
+    color: white;
+    display: block;
+    /* stops any flex or span warping */
+    text-align: center;
+    white-space: normal;
+}
+
+/* Subtitle */
+.hero-subtitle {
+    margin-top: 16px;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    opacity: 0.8;
+    color: #cccccc;
+}
