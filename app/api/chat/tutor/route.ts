@@ -468,7 +468,7 @@ export async function POST(req: NextRequest) {
     // 0) Load student profile for adaptive context
     let studentContext = ""
     try {
-      const profile = studentDb.getProfile(studentId)
+      const profile = await studentDb.getProfile(studentId)
       studentContext = buildAdaptiveTutorContext(profile)
       console.log(
         `Sarvam API: Student profile loaded — ${profile.past_topics.length} past topics, confidence: ${profile.student_confidence_signal} `
@@ -506,19 +506,19 @@ export async function POST(req: NextRequest) {
       systemPrompt = isSql
         ? SQL_TUTOR_SYSTEM_PROMPT
         : CHAT_SYSTEM_PROMPT +
-          "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations."
+        "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations."
       userPrompt = messages[messages.length - 1]?.content || "Hello"
     } else if (activeMode === "teach") {
       systemPrompt = isSql
         ? SQL_TUTOR_SYSTEM_PROMPT
         : TEACH_SYSTEM_PROMPT +
-          "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations."
+        "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations."
       userPrompt = `Teach me about: ${question || (isSql ? "SQL basics." : "Python basics.")} \n\nContext code(if any): ${code || "None"} `
     } else if (activeMode === "review") {
       systemPrompt = isSql
         ? SQL_TUTOR_SYSTEM_PROMPT
         : REVIEW_SYSTEM_PROMPT +
-          "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations."
+        "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations."
       userPrompt = `Review and debug this ${isSql ? "SQL query" : "Python code"}: \n\n${code || ""} \n\nExecution Output: \n${output || "None"} \n\nExecution Error: \n${error || "None"} `
     } else if (activeMode === "wrap_up") {
       systemPrompt = WRAP_UP_SYSTEM_PROMPT
@@ -617,7 +617,7 @@ Mix naturally — Tamil flow, English technical words only.`
         const newName = nameMatch[1].trim()
         console.log(`[Profile] Detected name update: ${newName} `)
         try {
-          studentDb.updateName(studentId, newName)
+          await studentDb.updateName(studentId, newName)
         } catch (e) {
           console.error("Failed to update name:", e)
         }
@@ -669,7 +669,7 @@ Mix naturally — Tamil flow, English technical words only.`
           .replace(/```/g, "")
           .trim()
         const sessionSummary = JSON.parse(jsonStr)
-        studentDb.saveSession(studentId, sessionSummary)
+        await studentDb.saveSession(studentId, sessionSummary)
         console.log("[Profile] Wrap-up complete and saved to DB")
         explanation =
           "Your session has been summarized and saved. See you next time!"

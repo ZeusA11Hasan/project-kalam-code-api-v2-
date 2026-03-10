@@ -6,15 +6,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { studentDb, type SessionSummary } from "@/lib/db/studentProfile"
 
+// Vercel serverless-compatible
 export const runtime = "nodejs"
 
 // GET /api/student — Fetch student profile
 export async function GET(req: NextRequest) {
   try {
     const studentId = req.nextUrl.searchParams.get("id") || "default"
-    const profile = studentDb.getProfile(studentId)
-    const sessionCount = studentDb.getSessionCount(studentId)
-    const recentSessions = studentDb.getRecentSessions(studentId, 3)
+
+    // Now using asynchronous Supabase queries
+    const [profile, sessionCount, recentSessions] = await Promise.all([
+      studentDb.getProfile(studentId),
+      studentDb.getSessionCount(studentId),
+      studentDb.getRecentSessions(studentId, 3)
+    ])
 
     return NextResponse.json({
       profile,
@@ -58,7 +63,7 @@ export async function POST(req: NextRequest) {
       topic_stack: session.topic_stack || []
     }
 
-    studentDb.saveSession(studentId, summary)
+    await studentDb.saveSession(studentId, summary)
 
     console.log("[Student API] Session saved:", {
       studentId,
@@ -83,12 +88,12 @@ export async function PUT(req: NextRequest) {
     const { studentId = "default", action, data } = body
 
     if (action === "updateLearningPath" && Array.isArray(data.path)) {
-      studentDb.updateLearningPath(studentId, data.path)
+      await studentDb.updateLearningPath(studentId, data.path)
       return NextResponse.json({ success: true })
     }
 
     if (action === "recordExplanationStyle" && data.topic && data.style) {
-      studentDb.recordExplanationStyle(studentId, data.topic, data.style)
+      await studentDb.recordExplanationStyle(studentId, data.topic, data.style)
       return NextResponse.json({ success: true })
     }
 
