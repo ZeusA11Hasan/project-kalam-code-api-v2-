@@ -962,8 +962,8 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      {/* Floating Dock - Left Side Vertical (always visible on desktop, hidden on mobile) */}
-      <div className="fixed left-3 top-1/2 z-[60] hidden -translate-y-1/2 md:block">
+      {/* Floating Dock - Left Side Vertical (desktop only >1024px; hidden on tablet to prevent overlap) */}
+      <div className="fixed left-3 top-1/2 z-[60] hidden -translate-y-1/2 lg:block">
         <FloatingDock
           items={dockItems}
           onNewChat={handleNewChat}
@@ -1001,96 +1001,103 @@ export default function HomePage() {
               <div className="absolute bottom-20 left-1/3 size-[400px] rounded-full bg-emerald-500/5 blur-3xl" />
             </div>
 
-            {/* Main Content Container */}
-            <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 pb-12 pt-[15vh] md:gap-10 md:px-20 md:pt-[18vh]">
-              {/* 1. Personalized Greeting (Hook) */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="z-20 text-center"
-              >
-                <h2 className="font-darker-grotesque mb-8 text-[25px] font-black uppercase tracking-[0.2em] text-white/30 md:mb-12 md:text-[32px] md:tracking-[0.3em]">
-                  Welcome back
-                </h2>
-                <h1 className="font-darker-grotesque mb-2 text-[75px] font-bold leading-[0.9] tracking-tight text-white md:text-[125px]">
-                  {getGreeting()},{" "}
-                  <span className="animate-gradient font-darker-grotesque bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-[length:200%_auto] bg-clip-text text-transparent">
-                    {studentName}
-                  </span>
-                </h1>
-              </motion.div>
+            {/* Main Content Container — tablet 90% width (max-w-[1100px]), padding px-4 sm:px-8 md:px-12 */}
+            <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 pb-8 pt-[12vh] sm:gap-5 sm:px-8 sm:pt-[14vh] md:gap-8 md:px-12 md:pb-10 md:pt-[14vh] lg:gap-10 lg:px-16 lg:pb-12 lg:pt-[18vh]">
+              <div className="mx-auto flex w-full max-w-[95%] flex-col items-center sm:max-w-[95%] md:max-w-[min(90%,1100px)] lg:max-w-6xl">
+                {/* 1. Hero — tablet uses text-4xl/5xl scale so it feels like scaled desktop, not mobile */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  className="z-20 w-full text-center"
+                >
+                  <h2 className="font-darker-grotesque mb-3 text-xl font-black uppercase tracking-[0.15em] text-white/30 sm:mb-4 sm:text-2xl md:mb-6 md:text-3xl md:tracking-[0.2em] lg:mb-12 lg:text-[32px] lg:tracking-[0.3em]">
+                    Welcome back
+                  </h2>
+                  <h1 className="font-darker-grotesque mb-2 text-3xl font-bold leading-[0.9] tracking-tight text-white sm:text-4xl md:text-6xl md:leading-[0.95] lg:text-[80px] lg:leading-[0.9]">
+                    {getGreeting()},{" "}
+                    <span className="animate-gradient font-darker-grotesque bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-400 bg-[length:200%_auto] bg-clip-text text-transparent">
+                      {studentName}
+                    </span>
+                  </h1>
+                </motion.div>
 
-              {/* 2. Hero Action (Context) */}
-              <div className="pointer-events-none z-20 mt-8 flex w-full flex-col items-center justify-center md:mt-16">
-                <div className="flex flex-col items-center gap-2 text-center md:flex-row md:gap-4 md:text-left">
-                  <span className="font-darker-grotesque text-[24px] font-light uppercase leading-tight tracking-[0.1em] text-white/80 opacity-70 sm:text-[36px] md:text-[48px] md:tracking-[0.15em]">
-                    Ask me anything
-                  </span>
-                  <div className="flex min-w-[100px] items-center justify-center text-center md:min-w-[160px] md:justify-start md:text-left">
-                    <TextRotate
-                      texts={["Programming", "Mathematics", "AI", "Literature"]}
-                      mainClassName="text-cyan-400 text-[24px] sm:text-[36px] md:text-[48px] font-semibold tracking-wide font-darker-grotesque leading-tight"
-                      staggerFrom="last"
-                      initial={{ y: "100%", opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: "-120%", opacity: 0 }}
-                      staggerDuration={0.025}
-                      splitBy="characters"
-                      transition={{
-                        type: "spring",
-                        damping: 30,
-                        stiffness: 400
-                      }}
-                      rotationInterval={3000}
-                    />
+                {/* 2. Ask me anything — tablet: ~48px gap below hero; desktop unchanged */}
+                <div className="pointer-events-none z-20 mt-4 flex w-full flex-col items-center justify-center md:mt-12 lg:mt-16 lg:flex-row lg:gap-4 lg:text-left">
+                  <div className="flex flex-col items-center gap-2 text-center md:gap-4 lg:flex-row lg:gap-4">
+                    <span className="font-darker-grotesque text-lg font-light uppercase leading-tight tracking-[0.1em] text-white/80 opacity-70 sm:text-xl md:text-3xl md:tracking-[0.12em] lg:text-5xl lg:tracking-[0.15em]">
+                      Ask me anything
+                    </span>
+                    <div className="flex min-w-0 items-center justify-center text-center md:min-w-[120px] lg:min-w-[160px] lg:justify-start lg:text-left">
+                      <TextRotate
+                        texts={[
+                          "Programming",
+                          "Mathematics",
+                          "AI",
+                          "Literature"
+                        ]}
+                        mainClassName="text-cyan-400 font-darker-grotesque font-semibold leading-tight tracking-wide text-lg sm:text-xl md:text-3xl lg:text-5xl"
+                        staggerFrom="last"
+                        initial={{ y: "100%", opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: "-120%", opacity: 0 }}
+                        staggerDuration={0.025}
+                        splitBy="characters"
+                        transition={{
+                          type: "spring",
+                          damping: 30,
+                          stiffness: 400
+                        }}
+                        rotationInterval={3000}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* 3. The Premium Action Area */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.98, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{
-                  duration: 0.8,
-                  delay: 0.2,
-                  ease: [0.16, 1, 0.3, 1]
-                }}
-                className="z-20 mt-4 w-full max-w-3xl px-2 md:px-0"
-              >
-                <ChatMorphBar
-                  onSend={handleSend}
-                  isLoading={isAILoading}
-                  isCallActive={isCallActive}
-                  isListening={webSpeech.isListening}
-                  isSpeaking={webSpeech.isSpeaking}
-                  interimTranscript={webSpeech.interimTranscript}
-                  mediaStream={webSpeech.activeStream}
-                  audioElement={webSpeech.activeAudioElement}
-                  onMicToggle={webSpeech.toggleListening}
-                  onStartCall={() => {
-                    setIsCallActive(true)
-                    isCallActiveRef.current = true
-                    if (!webSpeech.isListening) {
-                      webSpeech.startListening()
-                    }
+                {/* 3. Chat input — mobile 90%, tablet 85% (wide), desktop 60% centered; tablet: 56px top margin */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{
+                    duration: 0.8,
+                    delay: 0.2,
+                    ease: [0.16, 1, 0.3, 1]
                   }}
-                  onEndCall={() => {
-                    setIsCallActive(false)
-                    isCallActiveRef.current = false
-                    abortControllerRef.current?.abort()
-                    if (webSpeech.isListening) webSpeech.stopListening()
-                    webSpeech.stopSpeaking()
-                  }}
-                  onStop={() => {
-                    abortControllerRef.current?.abort()
-                    webSpeech.stopSpeaking()
-                  }}
-                  placeholder="Type a subject or paste a problem..."
-                  className="shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)]"
-                />
-              </motion.div>
+                  className="z-20 mt-2 w-[90%] px-0 sm:mt-4 sm:w-[85%] md:mt-14 md:w-[85%] md:max-w-4xl md:px-2 lg:mt-4 lg:w-[60%] lg:max-w-3xl lg:px-0"
+                >
+                  <ChatMorphBar
+                    onSend={handleSend}
+                    isLoading={isAILoading}
+                    isCallActive={isCallActive}
+                    isListening={webSpeech.isListening}
+                    isSpeaking={webSpeech.isSpeaking}
+                    interimTranscript={webSpeech.interimTranscript}
+                    mediaStream={webSpeech.activeStream}
+                    audioElement={webSpeech.activeAudioElement}
+                    onMicToggle={webSpeech.toggleListening}
+                    onStartCall={() => {
+                      setIsCallActive(true)
+                      isCallActiveRef.current = true
+                      if (!webSpeech.isListening) {
+                        webSpeech.startListening()
+                      }
+                    }}
+                    onEndCall={() => {
+                      setIsCallActive(false)
+                      isCallActiveRef.current = false
+                      abortControllerRef.current?.abort()
+                      if (webSpeech.isListening) webSpeech.stopListening()
+                      webSpeech.stopSpeaking()
+                    }}
+                    onStop={() => {
+                      abortControllerRef.current?.abort()
+                      webSpeech.stopSpeaking()
+                    }}
+                    placeholder="Type a subject or paste a problem..."
+                    className="shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)]"
+                  />
+                </motion.div>
+              </div>
             </div>
           </motion.div>
         )}
@@ -1104,7 +1111,7 @@ export default function HomePage() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 10 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-50 flex items-center justify-center px-1 pb-3 pt-1 md:px-4 md:pb-6 md:pl-[120px] md:pt-4"
+            className="fixed inset-0 z-50 flex items-center justify-center px-2 pb-3 pt-2 md:px-4 md:pb-6 md:pt-4 lg:pl-[120px]"
           >
             {/* Background Layer with Radial Gradient */}
             <div className="bg-gradient-radial absolute inset-0 from-cyan-900/10 via-black/40 to-black/60 backdrop-blur-sm" />
@@ -1116,8 +1123,8 @@ export default function HomePage() {
               style={{ animationDelay: "1s" }}
             />
 
-            {/* Main Split Container - Chat (Left) + Whiteboard (Right) */}
-            <div className="relative flex size-full max-h-[98vh] gap-0 md:h-[98vh]">
+            {/* Main Split Container — stack on mobile/tablet (≤1024px), row on desktop (>1024px) */}
+            <div className="relative flex size-full max-h-[96vh] min-h-0 flex-col gap-3 md:max-h-[98vh] lg:h-[98vh] lg:flex-row lg:gap-0">
               {/* Chat Container — Now consistently on the left */}
               <motion.div
                 key="chat-panel"
@@ -1138,24 +1145,24 @@ export default function HomePage() {
                   isResizing
                     ? { duration: 0.1 }
                     : {
-                      y: {
-                        type: "spring",
-                        stiffness: 220,
-                        damping: 24,
-                        mass: 1.8
-                      },
-                      layout: isWhiteboardOpen
-                        ? {
+                        y: {
                           type: "spring",
-                          stiffness: 260,
-                          damping: 26,
-                          mass: 1.5
-                        }
-                        : { duration: 1.1, ease: [0.19, 1, 0.22, 1] },
-                      opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-                      scale: { type: "spring", stiffness: 220, damping: 24 },
-                      filter: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-                    }
+                          stiffness: 220,
+                          damping: 24,
+                          mass: 1.8
+                        },
+                        layout: isWhiteboardOpen
+                          ? {
+                              type: "spring",
+                              stiffness: 260,
+                              damping: 26,
+                              mass: 1.5
+                            }
+                          : { duration: 1.1, ease: [0.19, 1, 0.22, 1] },
+                        opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                        scale: { type: "spring", stiffness: 220, damping: 24 },
+                        filter: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+                      }
                 }
                 style={{
                   background:
@@ -1169,11 +1176,11 @@ export default function HomePage() {
                     ? "none"
                     : "box-shadow 0.5s ease, filter 0.5s ease"
                 }}
-                className="relative flex flex-1 flex-col overflow-hidden rounded-2xl border border-white/[0.04] backdrop-blur-xl will-change-transform md:rounded-[40px]"
+                className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/[0.04] backdrop-blur-xl will-change-transform md:min-h-[45vh] md:rounded-2xl lg:min-h-0 lg:rounded-[40px]"
               >
-                {/* Chat Header */}
+                {/* Chat Header — responsive padding for tablet */}
                 <div
-                  className="flex shrink-0 items-center justify-between border-b border-white/[0.04] px-6 py-[14px] backdrop-blur-xl"
+                  className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-white/[0.04] px-4 py-3 backdrop-blur-xl md:px-5 md:py-[12px] lg:px-6 lg:py-[14px]"
                   style={{
                     background:
                       "linear-gradient(145deg, rgba(17, 17, 20, 0.95), rgba(12, 12, 14, 0.95))",
@@ -1496,19 +1503,19 @@ export default function HomePage() {
                       transition: isResizing
                         ? { duration: 0.1 }
                         : {
-                          y: {
-                            type: "spring",
-                            stiffness: 220,
-                            damping: 24,
-                            mass: 1.8
-                          },
-                          scale: {
-                            type: "spring",
-                            stiffness: 220,
-                            damping: 24
-                          },
-                          opacity: { duration: 0.4, ease: "easeOut" }
-                        }
+                            y: {
+                              type: "spring",
+                              stiffness: 220,
+                              damping: 24,
+                              mass: 1.8
+                            },
+                            scale: {
+                              type: "spring",
+                              stiffness: 220,
+                              damping: 24
+                            },
+                            opacity: { duration: 0.4, ease: "easeOut" }
+                          }
                     }}
                     exit={{
                       x: "100%",
@@ -1534,7 +1541,7 @@ export default function HomePage() {
                         ? "-8px -8px 20px rgba(255,255,255,0.015), 12px 12px 30px rgba(0,0,0,0.9), 0 0 20px rgba(6,182,212,0.08)"
                         : "-8px -8px 20px rgba(255,255,255,0.015), 12px 12px 30px rgba(0,0,0,0.9)"
                     }}
-                    className="ml-2 hidden shrink-0 flex-col overflow-hidden rounded-[40px] border border-white/[0.04] will-change-transform md:flex"
+                    className="hidden min-h-[38vh] shrink-0 flex-col overflow-hidden rounded-2xl border border-white/[0.04] will-change-transform md:flex lg:ml-2 lg:min-h-0 lg:rounded-[40px]"
                   >
                     <div className="flex-1 overflow-auto">
                       <PythonIDE

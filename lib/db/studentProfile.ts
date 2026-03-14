@@ -39,7 +39,10 @@ export interface SessionSummary {
 
 export const studentDb = {
   // ── Ensure default profile exists ──────────────────────────────
-  ensureProfile: async (studentId: string = "default", name: string = "Student") => {
+  ensureProfile: async (
+    studentId: string = "default",
+    name: string = "Student"
+  ) => {
     const { data: existing } = await db
       .from("student_profiles")
       .select("id")
@@ -47,18 +50,38 @@ export const studentDb = {
       .maybeSingle()
 
     if (!existing) {
-      await db.from("student_profiles").insert({ id: studentId, display_name: name })
+      await db
+        .from("student_profiles")
+        .insert({ id: studentId, display_name: name })
     }
   },
 
   // ── Get full student profile (aggregated from all tables) ──────
-  getProfile: async (studentId: string = "default"): Promise<StudentProfile> => {
+  getProfile: async (
+    studentId: string = "default"
+  ): Promise<StudentProfile> => {
     await studentDb.ensureProfile(studentId)
 
-    const [{ data: profile }, { data: lastSession }, { data: allSessions }, { data: masteryRows }] = await Promise.all([
+    const [
+      { data: profile },
+      { data: lastSession },
+      { data: allSessions },
+      { data: masteryRows }
+    ] = await Promise.all([
       db.from("student_profiles").select("*").eq("id", studentId).single(),
-      db.from("session_history").select("*").eq("student_id", studentId).order("created_at", { ascending: false }).limit(1).maybeSingle(),
-      db.from("session_history").select("topics_covered").eq("student_id", studentId).order("created_at", { ascending: false }).limit(20),
+      db
+        .from("session_history")
+        .select("*")
+        .eq("student_id", studentId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      db
+        .from("session_history")
+        .select("topics_covered")
+        .eq("student_id", studentId)
+        .order("created_at", { ascending: false })
+        .limit(20),
       db.from("topic_mastery").select("*").eq("student_id", studentId)
     ])
 
@@ -66,9 +89,12 @@ export const studentDb = {
     if (allSessions) {
       for (const session of allSessions) {
         try {
-          const topics = typeof session.topics_covered === "string" ? JSON.parse(session.topics_covered) : session.topics_covered || []
+          const topics =
+            typeof session.topics_covered === "string"
+              ? JSON.parse(session.topics_covered)
+              : session.topics_covered || []
           topics.forEach((t: string) => pastTopics.add(t))
-        } catch { }
+        } catch {}
       }
     }
 
@@ -80,11 +106,17 @@ export const studentDb = {
       for (const row of masteryRows) {
         if (row.mastery_level === "mastered") {
           conceptsMastered.push(row.topic)
-        } else if (row.mastery_level === "struggling" || row.mastery_level === "learning") {
+        } else if (
+          row.mastery_level === "struggling" ||
+          row.mastery_level === "learning"
+        ) {
           conceptsNeedingRevision.push(row.topic)
         }
         try {
-          explanationStylesUsed[row.topic] = typeof row.explanation_styles_used === "string" ? JSON.parse(row.explanation_styles_used) : row.explanation_styles_used || []
+          explanationStylesUsed[row.topic] =
+            typeof row.explanation_styles_used === "string"
+              ? JSON.parse(row.explanation_styles_used)
+              : row.explanation_styles_used || []
         } catch {
           explanationStylesUsed[row.topic] = []
         }
@@ -94,20 +126,30 @@ export const studentDb = {
     return {
       id: profile?.id || studentId,
       display_name: profile?.display_name || "Student",
-      current_learning_path: typeof profile?.current_learning_path === "string" ? safeJsonParse(profile?.current_learning_path, []) : profile?.current_learning_path || [],
+      current_learning_path:
+        typeof profile?.current_learning_path === "string"
+          ? safeJsonParse(profile?.current_learning_path, [])
+          : profile?.current_learning_path || [],
       past_topics: Array.from(pastTopics),
       concepts_mastered: conceptsMastered,
       concepts_needing_revision: conceptsNeedingRevision,
       last_session_summary: lastSession?.session_summary || null,
       suggested_next_topic: lastSession?.suggested_next_topic || null,
-      topic_stack: typeof lastSession?.topic_stack === "string" ? safeJsonParse(lastSession?.topic_stack, []) : lastSession?.topic_stack || [],
+      topic_stack:
+        typeof lastSession?.topic_stack === "string"
+          ? safeJsonParse(lastSession?.topic_stack, [])
+          : lastSession?.topic_stack || [],
       explanation_styles_used: explanationStylesUsed,
-      student_confidence_signal: lastSession?.student_confidence_signal || "medium"
+      student_confidence_signal:
+        lastSession?.student_confidence_signal || "medium"
     }
   },
 
   // ── Save end-of-session summary ────────────────────────────────
-  saveSession: async (studentId: string = "default", summary: SessionSummary) => {
+  saveSession: async (
+    studentId: string = "default",
+    summary: SessionSummary
+  ) => {
     await studentDb.ensureProfile(studentId)
 
     await db.from("session_history").insert({
@@ -115,7 +157,9 @@ export const studentDb = {
       session_summary: summary.session_summary,
       topics_covered: JSON.stringify(summary.topics_covered),
       concepts_mastered: JSON.stringify(summary.concepts_mastered),
-      concepts_needing_revision: JSON.stringify(summary.concepts_needing_revision),
+      concepts_needing_revision: JSON.stringify(
+        summary.concepts_needing_revision
+      ),
       suggested_next_topic: summary.suggested_next_topic,
       student_confidence_signal: summary.student_confidence_signal,
       topic_stack: JSON.stringify(summary.topic_stack)
@@ -123,31 +167,49 @@ export const studentDb = {
 
     // Update topic mastery records
     for (const topic of summary.concepts_mastered) {
-      await db.from("topic_mastery").upsert({
-        student_id: studentId,
-        topic: topic,
-        mastery_level: "mastered",
-        last_seen_at: new Date().toISOString()
-      }, { onConflict: "student_id,topic" }) // Requires unique constraint on (student_id, topic)
+      await db.from("topic_mastery").upsert(
+        {
+          student_id: studentId,
+          topic: topic,
+          mastery_level: "mastered",
+          last_seen_at: new Date().toISOString()
+        },
+        { onConflict: "student_id,topic" }
+      ) // Requires unique constraint on (student_id, topic)
     }
 
     for (const topic of summary.concepts_needing_revision) {
-      const { data: existing } = await db.from("topic_mastery").select("times_revised").eq("student_id", studentId).eq("topic", topic).maybeSingle()
+      const { data: existing } = await db
+        .from("topic_mastery")
+        .select("times_revised")
+        .eq("student_id", studentId)
+        .eq("topic", topic)
+        .maybeSingle()
       const timesRevised = (existing?.times_revised || 0) + 1
-      await db.from("topic_mastery").upsert({
-        student_id: studentId,
-        topic: topic,
-        mastery_level: "struggling",
-        times_revised: timesRevised,
-        last_seen_at: new Date().toISOString()
-      }, { onConflict: "student_id,topic" })
+      await db.from("topic_mastery").upsert(
+        {
+          student_id: studentId,
+          topic: topic,
+          mastery_level: "struggling",
+          times_revised: timesRevised,
+          last_seen_at: new Date().toISOString()
+        },
+        { onConflict: "student_id,topic" }
+      )
     }
 
-    await db.from("student_profiles").update({ updated_at: new Date().toISOString() }).eq("id", studentId)
+    await db
+      .from("student_profiles")
+      .update({ updated_at: new Date().toISOString() })
+      .eq("id", studentId)
   },
 
   // ── Record which explanation style was used for a topic ────────
-  recordExplanationStyle: async (studentId: string = "default", topic: string, style: string) => {
+  recordExplanationStyle: async (
+    studentId: string = "default",
+    topic: string,
+    style: string
+  ) => {
     await studentDb.ensureProfile(studentId)
 
     const { data: row } = await db
@@ -159,11 +221,18 @@ export const studentDb = {
 
     let styles: string[] = []
     if (row) {
-      styles = typeof row.explanation_styles_used === "string" ? safeJsonParse(row.explanation_styles_used, []) : row.explanation_styles_used || []
+      styles =
+        typeof row.explanation_styles_used === "string"
+          ? safeJsonParse(row.explanation_styles_used, [])
+          : row.explanation_styles_used || []
       if (!styles.includes(style)) {
         styles.push(style)
       }
-      await db.from("topic_mastery").update({ explanation_styles_used: JSON.stringify(styles) }).eq("student_id", studentId).eq("topic", topic)
+      await db
+        .from("topic_mastery")
+        .update({ explanation_styles_used: JSON.stringify(styles) })
+        .eq("student_id", studentId)
+        .eq("topic", topic)
     } else {
       await db.from("topic_mastery").insert({
         student_id: studentId,
@@ -177,23 +246,43 @@ export const studentDb = {
 
   // ── Update student name ────────────────────────────────────────
   updateName: async (studentId: string = "default", name: string) => {
-    await db.from("student_profiles").update({ display_name: name, updated_at: new Date().toISOString() }).eq("id", studentId)
+    await db
+      .from("student_profiles")
+      .update({ display_name: name, updated_at: new Date().toISOString() })
+      .eq("id", studentId)
   },
 
   // ── Update learning path ───────────────────────────────────────
   updateLearningPath: async (studentId: string = "default", path: string[]) => {
-    await db.from("student_profiles").update({ current_learning_path: JSON.stringify(path), updated_at: new Date().toISOString() }).eq("id", studentId)
+    await db
+      .from("student_profiles")
+      .update({
+        current_learning_path: JSON.stringify(path),
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", studentId)
   },
 
   // ── Get session count ──────────────────────────────────────────
   getSessionCount: async (studentId: string = "default"): Promise<number> => {
-    const { count } = await db.from("session_history").select("*", { count: "exact", head: true }).eq("student_id", studentId)
+    const { count } = await db
+      .from("session_history")
+      .select("*", { count: "exact", head: true })
+      .eq("student_id", studentId)
     return count || 0
   },
 
   // ── Get last N sessions for context ────────────────────────────
-  getRecentSessions: async (studentId: string = "default", limit: number = 5) => {
-    const { data } = await db.from("session_history").select("*").eq("student_id", studentId).order("created_at", { ascending: false }).limit(limit)
+  getRecentSessions: async (
+    studentId: string = "default",
+    limit: number = 5
+  ) => {
+    const { data } = await db
+      .from("session_history")
+      .select("*")
+      .eq("student_id", studentId)
+      .order("created_at", { ascending: false })
+      .limit(limit)
     return data || []
   }
 }

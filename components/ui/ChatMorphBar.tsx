@@ -317,7 +317,10 @@ export const ChatMorphBar = React.forwardRef<HTMLDivElement, ChatMorphBarProps>(
     // RENDER
     // ======================================================================
     return (
-      <div ref={ref} className={cn("relative mx-auto w-full", className)}>
+      <div
+        ref={ref}
+        className={cn("relative mx-auto w-full min-w-0", className)}
+      >
         <LayoutGroup>
           {/* ====================================================
                     CHAT INPUT MODE
@@ -325,7 +328,7 @@ export const ChatMorphBar = React.forwardRef<HTMLDivElement, ChatMorphBarProps>(
           <div
             ref={chatRef}
             className={cn(
-              "relative flex flex-col rounded-[2.5rem] border border-white/[0.02] p-2 backdrop-blur-2xl transition-shadow duration-500",
+              "relative flex flex-col rounded-2xl border border-white/[0.02] p-2 backdrop-blur-2xl transition-shadow duration-500 md:rounded-[2rem] md:px-6 md:py-4 lg:rounded-[2.5rem] lg:p-2",
               isFocused
                 ? "shadow-[inset_-2px_-2px_6px_rgba(255,255,255,0.02),inset_2px_2px_6px_rgba(0,0,0,0.7)]"
                 : "shadow-[-6px_-6px_14px_rgba(255,255,255,0.02),6px_6px_14px_rgba(0,0,0,0.6)]"
@@ -370,10 +373,10 @@ export const ChatMorphBar = React.forwardRef<HTMLDivElement, ChatMorphBarProps>(
               )}
             </AnimatePresence>
 
-            {/* Input row */}
-            <div className="flex items-end gap-2 px-2 py-1">
+            {/* Input row — tablet: py-4 px-6 breathing room; desktop unchanged */}
+            <div className="flex items-end gap-1.5 px-1 py-0.5 sm:gap-2 sm:px-2 md:gap-4 md:p-0 lg:gap-2 lg:py-1">
               {/* Attach */}
-              <div className="mb-1 flex items-center">
+              <div className="mb-1 flex shrink-0 items-center">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -385,15 +388,15 @@ export const ChatMorphBar = React.forwardRef<HTMLDivElement, ChatMorphBarProps>(
                 <ActionTooltip label="Attach images">
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="rounded-full p-2 text-white/30 transition-all hover:bg-white/5 hover:text-white/70"
+                    className="rounded-full p-1.5 text-white/30 transition-all hover:bg-white/5 hover:text-white/70 md:p-2"
                   >
-                    <Paperclip size={20} />
+                    <Paperclip className="size-4 shrink-0 md:size-5" />
                   </button>
                 </ActionTooltip>
               </div>
 
-              {/* Textarea */}
-              <div className="relative flex min-h-[44px] flex-1 flex-col justify-center">
+              {/* Textarea — tablet: larger min-height and text for scaled UI */}
+              <div className="relative flex min-h-[40px] min-w-0 flex-1 flex-col justify-center md:min-h-[48px]">
                 <textarea
                   ref={textareaRef}
                   rows={1}
@@ -403,12 +406,12 @@ export const ChatMorphBar = React.forwardRef<HTMLDivElement, ChatMorphBarProps>(
                   onBlur={() => setIsFocused(false)}
                   onKeyDown={handleKeyDown}
                   placeholder={placeholder}
-                  className="scrollbar-none max-h-[200px] w-full resize-none overflow-y-auto border-none bg-transparent px-1 py-3 text-[15px] font-medium text-white outline-none placeholder:text-white/30 focus:outline-none focus:ring-0"
+                  className="scrollbar-none max-h-[200px] w-full resize-none overflow-y-auto border-none bg-transparent px-1 py-2.5 text-[14px] font-medium text-white outline-none placeholder:text-white/30 focus:outline-none focus:ring-0 md:py-3 md:text-base lg:text-[15px]"
                 />
               </div>
 
-              {/* Right action button */}
-              <div className="mb-1 flex items-center">
+              {/* Right action button — responsive size for tablet */}
+              <div className="mb-1 flex shrink-0 items-center">
                 <motion.button
                   key="right-btn"
                   layout
@@ -416,7 +419,7 @@ export const ChatMorphBar = React.forwardRef<HTMLDivElement, ChatMorphBarProps>(
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className={cn(
-                    "flex items-center justify-center rounded-2xl bg-[rgba(13,13,15,0.92)] p-2.5 backdrop-blur-md transition-all duration-500 focus:outline-none",
+                    "flex items-center justify-center rounded-xl bg-[rgba(13,13,15,0.92)] p-2 backdrop-blur-md transition-all duration-500 focus:outline-none md:rounded-2xl md:p-2.5",
                     isLoading
                       ? "text-red-500 shadow-[inset_-2px_-2px_6px_rgba(255,255,255,0.03),inset_2px_2px_6px_rgba(0,0,0,0.6)]"
                       : input.trim() || files.length > 0
@@ -425,11 +428,14 @@ export const ChatMorphBar = React.forwardRef<HTMLDivElement, ChatMorphBarProps>(
                   )}
                 >
                   {isLoading ? (
-                    <Square size={16} fill="currentColor" />
+                    <Square
+                      className="size-4 shrink-0 md:size-4"
+                      fill="currentColor"
+                    />
                   ) : input.trim() || files.length > 0 ? (
-                    <ArrowUp size={20} className="stroke-[3]" />
+                    <ArrowUp className="size-5 shrink-0 stroke-[3] md:size-5" />
                   ) : (
-                    <Mic size={20} />
+                    <Mic className="size-5 shrink-0 md:size-5" />
                   )}
                 </motion.button>
               </div>
@@ -442,7 +448,7 @@ export const ChatMorphBar = React.forwardRef<HTMLDivElement, ChatMorphBarProps>(
               <div className="pointer-events-none fixed inset-x-0 bottom-[40px] z-[9999] flex items-end justify-center">
                 <div
                   ref={callDockRef}
-                  className="pointer-events-auto relative flex w-max max-w-[95vw] items-center justify-center gap-5 rounded-[3rem] px-6 py-3 sm:max-w-fit"
+                  className="pointer-events-auto relative flex w-max max-w-[95vw] flex-wrap items-center justify-center gap-3 rounded-2xl px-4 py-2.5 sm:max-w-fit sm:flex-nowrap md:max-w-[92vw] md:gap-4 md:rounded-[2.5rem] md:px-5 md:py-3 lg:max-w-fit lg:gap-5 lg:rounded-[3rem] lg:px-6"
                   style={{
                     background:
                       "linear-gradient(145deg, rgba(13,13,15,0.95), rgba(8,8,10,0.98))",

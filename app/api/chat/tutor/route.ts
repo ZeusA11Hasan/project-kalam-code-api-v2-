@@ -49,7 +49,6 @@ CODE:
 NEVER output markdown code fences ( \`\`\` ) in either section.
 `
 
-
 const TEACH_SYSTEM_PROMPT = `${DUAL_STREAM_SYSTEM_PROMPT}`
 const CHAT_SYSTEM_PROMPT = `${DUAL_STREAM_SYSTEM_PROMPT} `
 const SQL_TUTOR_SYSTEM_PROMPT = `${DUAL_STREAM_SYSTEM_PROMPT}
@@ -345,20 +344,20 @@ export async function POST(req: NextRequest) {
 
     if (!activeMode && messages && Array.isArray(messages)) {
       activeMode = "chat"
-      systemPrompt = isSql
-        ? SQL_TUTOR_SYSTEM_PROMPT
-        : CHAT_SYSTEM_PROMPT
+      systemPrompt = isSql ? SQL_TUTOR_SYSTEM_PROMPT : CHAT_SYSTEM_PROMPT
       userPrompt = messages[messages.length - 1]?.content || "Hello"
     } else if (activeMode === "teach") {
-      systemPrompt = isSql
-        ? SQL_TUTOR_SYSTEM_PROMPT
-        : TEACH_SYSTEM_PROMPT
-      userPrompt = question ? `Regarding ${question}:\n\nContext code: ${code || "None"}` : (messages && messages.length > 0 ? messages[messages.length - 1].content : "Hey, I want to learn some Python.")
+      systemPrompt = isSql ? SQL_TUTOR_SYSTEM_PROMPT : TEACH_SYSTEM_PROMPT
+      userPrompt = question
+        ? `Regarding ${question}:\n\nContext code: ${code || "None"}`
+        : messages && messages.length > 0
+          ? messages[messages.length - 1].content
+          : "Hey, I want to learn some Python."
     } else if (activeMode === "review") {
       systemPrompt = isSql
         ? SQL_TUTOR_SYSTEM_PROMPT
         : REVIEW_SYSTEM_PROMPT +
-        "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations."
+          "\n\nMODE: PYTHON TUTOR. Use Python comments (#) for code explanations."
       userPrompt = `Review and debug this ${isSql ? "SQL query" : "Python code"}: \n\n${code || ""} \n\nExecution Output: \n${output || "None"} \n\nExecution Error: \n${error || "None"} `
     } else if (activeMode === "wrap_up") {
       systemPrompt = WRAP_UP_SYSTEM_PROMPT

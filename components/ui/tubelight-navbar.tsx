@@ -38,11 +38,11 @@ export function NavBar({ items, className }: NavBarProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-1/2 z-50 mb-6 h-fit -translate-x-1/2 sm:bottom-auto sm:top-0 sm:mb-0 sm:pt-6",
+        "fixed bottom-0 left-1/2 z-50 mb-6 h-fit w-full max-w-[95%] -translate-x-1/2 sm:bottom-auto sm:top-0 sm:mb-0 sm:max-w-[95%] sm:pt-4 md:max-w-[min(90%,1100px)] md:pt-5 lg:max-w-6xl lg:pt-6",
         className
       )}
     >
-      <div className="flex items-center gap-3 rounded-full border border-white/5 bg-[#0a0a0a]/80 p-1 shadow-[0_8px_32px_rgba(0,0,0,0.4)] ring-1 ring-white/5 backdrop-blur-2xl transition-all">
+      <div className="flex flex-wrap items-center justify-center gap-1 rounded-full border border-white/5 bg-[#0a0a0a]/80 p-1 shadow-[0_8px_32px_rgba(0,0,0,0.4)] ring-1 ring-white/5 backdrop-blur-2xl transition-all sm:gap-2 md:flex-nowrap md:gap-2 md:px-2 lg:gap-3 lg:px-3">
         {items.map(item => {
           const Icon = item.icon
           const isActive = activeTab === item.name
@@ -53,14 +53,14 @@ export function NavBar({ items, className }: NavBarProps) {
               href={item.url}
               onClick={() => setActiveTab(item.name)}
               className={cn(
-                "relative cursor-pointer rounded-full px-6 py-2 text-sm font-semibold",
+                "relative flex cursor-pointer items-center justify-center rounded-full px-3 py-2 text-xs font-semibold sm:px-4 md:px-4 md:text-sm lg:px-6",
                 "text-white/60 transition-all hover:text-white",
                 isActive && "bg-white/5 text-cyan-400"
               )}
             >
               <span className="hidden md:inline">{item.name}</span>
-              <span className="md:hidden">
-                <Icon size={18} strokeWidth={2.5} />
+              <span className="flex items-center justify-center md:hidden">
+                <Icon size={18} strokeWidth={2.5} className="shrink-0" />
               </span>
               {isActive && (
                 <motion.div
@@ -84,16 +84,16 @@ export function NavBar({ items, className }: NavBarProps) {
           )
         })}
 
-        {/* Auth Button */}
+        {/* Auth Button — responsive padding for tablet */}
         {user ? (
           <Button
             variant="neumorphic"
             size="sm"
             onClick={() => signOut()}
-            className="rounded-full px-6"
+            className="flex items-center justify-center rounded-full px-3 md:px-4 lg:px-6"
           >
             <span className="hidden md:inline">Sign Out</span>
-            <LogOut size={16} strokeWidth={2.5} />
+            <LogOut size={16} strokeWidth={2.5} className="shrink-0 md:ml-0" />
           </Button>
         ) : null}
       </div>
