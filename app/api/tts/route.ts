@@ -1,40 +1,49 @@
-import { NextRequest, NextResponse } from "next/server"
 import { synthesizeSpeech } from "@/lib/tts/sarvam_tts"
 
-export async function POST(req: NextRequest) {
+export const maxDuration = 60
+export const dynamic = 'force-dynamic'
+
+/**
+ * Strips emojis for safety before sending to synthesizeSpeech
+ */
+function safetyStrip(text: string): string {
+  return text
+    .replace(/\p{Emoji}/gu, "")
+    .trim()
+}
+
+export async function POST(req: Request) {
   try {
     const { text, language_code } = await req.json()
 
-    console.log("[TTS Route] Called ✅")
-    console.log("[TTS Route] Text length:", text?.length)
-    console.log("[TTS Route] Text preview:", text?.slice(0, 80))
-    console.log("[TTS Route] Language:", language_code)
-    console.log("[TTS Route] API Key exists:", !!process.env.SARVAM_API_KEY)
-    console.log(
-      "[TTS Route] API Key preview:",
-      process.env.SARVAM_API_KEY?.slice(0, 8) + "..."
-    )
-
     if (!text) {
-      console.log("[TTS Route] ❌ No text provided")
-      return NextResponse.json({ error: "No text provided" }, { status: 400 })
+      return new Response(null, { status: 204 })
     }
 
-    const audioBuffer = await synthesizeSpeech(text, language_code || "en-IN")
-    console.log("[TTS Route] ✅ Audio buffer size:", audioBuffer.byteLength)
+    const cleaned = safetyStrip(text)
 
-    return new NextResponse(audioBuffer, {
-      status: 200,
+    if (!cleaned || cleaned.length < 1) {
+      console.log("[TTS Route] Skipping empty text after emoji stripping")
+      return new Response(null, { status: 204 })
+    }
+
+    const { audio, contentType } = await synthesizeSpeech(cleaned, language_code || "ta-IN")
+
+    return new Response(new Uint8Array(audio), {
       headers: {
-        "Content-Type": "audio/wav",
-        "Content-Disposition": "inline"
+        "Content-Type": contentType,
+        "Content-Length": audio.length.toString(),
+        "Cache-Control": "no-cache"
       }
     })
-  } catch (error: unknown) {
-    console.error("[TTS Route] ❌ Error:", error)
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-    return NextResponse.json({ error: "Unknown TTS error" }, { status: 500 })
+  } catch (error: any) {
+    console.error("[TTS Route] ❌ Error:", error.message)
+    return new Response(JSON.stringify({
+      error: "TTS Synthesis Failed",
+      message: error.message
+    }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    })
   }
 }

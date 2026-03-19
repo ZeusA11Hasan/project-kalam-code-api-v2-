@@ -103,18 +103,20 @@ export default async function RootLayout({
             <Toaster richColors position="top-center" duration={3000} />
 
             {/* 🔥 FULLSCREEN VIDEO BACKGROUND */}
-            <div className="fixed inset-0 -z-10 overflow-hidden">
+            <div className="pointer-events-none fixed inset-0 -z-10 select-none overflow-hidden">
               <video
                 autoPlay
                 loop
                 muted
                 playsInline
-                className="absolute inset-0 size-full object-cover"
+                disablePictureInPicture
+                preload="auto"
+                className="pointer-events-none absolute inset-0 size-full object-cover"
               >
                 <source src="/background.mp4" type="video/mp4" />
               </video>
               {/* Subtle overlay for better text contrast */}
-              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="pointer-events-none absolute inset-0 bg-black/10"></div>
             </div>
 
             {/* 🔮 GLASS FOREGROUND */}

@@ -2,12 +2,12 @@
 
 import { HangmanGame } from "@/components/HangmanGame"
 import { NavBar } from "@/components/ui/tubelight-navbar"
-import { Home, Sparkles, BookOpen, Calculator, User } from "lucide-react"
+import { Home, Sparkles, LayoutDashboard, Calculator, User } from "lucide-react"
 
 const navItems = [
   { name: "Home", url: "/", icon: Home },
   { name: "Features", url: "/#features", icon: Sparkles },
-  { name: "Library", url: "/#library", icon: BookOpen },
+  { name: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { name: "Pricing", url: "/#pricing", icon: Calculator },
   { name: "Profile", url: "/#profile", icon: User }
 ]

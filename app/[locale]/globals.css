@@ -234,3 +234,36 @@
   transform-origin: center;
   transform-box: fill-box;
 }
+
+/* Monaco Line Highlights */
+.line-highlight {
+  background-color: rgba(0, 255, 150, 0.2) !important;
+}
+
+.line-error {
+  background-color: rgba(255, 0, 0, 0.2) !important;
+}
+
+.error-inline {
+  background-color: rgba(255, 0, 0, 0.4);
+  border-bottom: 2px solid red;
+  text-decoration: red wavy underline;
+}
+
+.pulse-line {
+  animation: errorPulse 1s ease-in-out 2;
+}
+
+@keyframes errorPulse {
+  0% {
+    background: rgba(255, 0, 0, 0.1);
+  }
+
+  50% {
+    background: rgba(255, 0, 0, 0.4);
+  }
+
+  100% {
+    background: rgba(255, 0, 0, 0.1);
+  }
+}

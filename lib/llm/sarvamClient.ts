@@ -12,6 +12,7 @@ interface ChatMessage {
   content: string
 }
 
+
 /**
  * Non-streaming call to Sarvam AI's chat completions endpoint.
  * @param messages - Array of chat messages (system, user, assistant)
@@ -50,9 +51,11 @@ export async function chatWithSarvam(
       body: JSON.stringify({
         model: SARVAM_MODEL,
         messages: fullMessages,
-        stream: false
+        stream: false,
+        temperature: 0.1 // Lower temperature = more strict following of format
       })
     })
+
 
     if (!res.ok) {
       const errorBody = await res.text()

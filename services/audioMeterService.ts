@@ -4,9 +4,6 @@
  * Provides real-time audio level monitoring using Web Audio API.
  * Used for waveform visualization ONLY - does not affect STT.
  * 
- * CRITICAL: Must be started AFTER SpeechRecognition.start()
- * to avoid breaking browser permission flow.
- * 
  * @module services/audioMeterService
  */
 
@@ -42,7 +39,6 @@ class AudioMeterService {
 
     /**
      * Start the audio meter
-     * MUST be called AFTER SpeechRecognition.start()
      */
     async start(): Promise<boolean> {
         if (this.isRunning) {

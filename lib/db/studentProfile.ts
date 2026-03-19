@@ -23,7 +23,13 @@ export interface StudentProfile {
   topic_stack: string[]
   explanation_styles_used: Record<string, string[]>
   student_confidence_signal: string
+  xp: number
+  level: number
+  current_module: number
+  streak_days: number
 }
+
+
 
 export interface SessionSummary {
   session_summary: string
@@ -94,7 +100,7 @@ export const studentDb = {
               ? JSON.parse(session.topics_covered)
               : session.topics_covered || []
           topics.forEach((t: string) => pastTopics.add(t))
-        } catch {}
+        } catch { }
       }
     }
 
@@ -141,8 +147,14 @@ export const studentDb = {
           : lastSession?.topic_stack || [],
       explanation_styles_used: explanationStylesUsed,
       student_confidence_signal:
-        lastSession?.student_confidence_signal || "medium"
+        lastSession?.student_confidence_signal || "medium",
+      xp: profile?.xp || 0,
+      level: profile?.level || 1,
+      current_module: profile?.current_module || 1,
+      streak_days: profile?.streak_days || 0
     }
+
+
   },
 
   // ── Save end-of-session summary ────────────────────────────────
@@ -284,8 +296,20 @@ export const studentDb = {
       .order("created_at", { ascending: false })
       .limit(limit)
     return data || []
+  },
+
+  // ── Update profile progress (XP, Level, Module) ────────────────
+  updateProfile: async (studentId: string = "default", updates: Partial<StudentProfile>) => {
+    await db
+      .from("student_profiles")
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", studentId)
   }
 }
+
 
 // ─── HELPERS ─────────────────────────────────────────────────────
 

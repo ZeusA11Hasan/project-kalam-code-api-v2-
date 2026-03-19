@@ -3,16 +3,15 @@ export interface SarvamSTTResponse {
   language_code: string
 }
 
-// ============================================================
-// PRODUCTION-READY: Complete Python Tamil Transliteration Map
-// Covers: Keywords, Built-ins, OOP, DSA, Libraries, Errors
-// ============================================================
 const transliterationMap: Record<string, string> = {
-  // ── CORE PYTHON KEYWORDS ──────────────────────────────
   பைதான்: "Python",
   பைத்தான்: "Python",
+  சைத்தான்: "Python",
+  சைதன்: "Python",
   ஃபார்: "for",
   வைல்: "while",
+  ஹ்வைல்: "while",
+  வைல்லூப்: "while loop",
   இஃப்: "if",
   எல்ஸ்: "else",
   எலிஃப்: "elif",
@@ -41,8 +40,6 @@ const transliterationMap: Record<string, string> = {
   நான்லோக்கல்: "nonlocal",
   அசின்க்: "async",
   அவெய்ட்: "await",
-
-  // ── FUNCTIONS & DEFINITIONS ───────────────────────────
   டெஃப்: "def",
   டீப்: "def",
   க்ளாஸ்: "class",
@@ -66,8 +63,6 @@ const transliterationMap: Record<string, string> = {
   ஸ்கோப்: "scope",
   லோக்கல்: "local",
   "க்ளோபல் ஸ்கோப்": "global scope",
-
-  // ── VARIABLES & DATA TYPES ────────────────────────────
   வேரியபிள்: "variable",
   வேரியபிள்ஸ்: "variables",
   இன்ட்: "int",
@@ -87,17 +82,12 @@ const transliterationMap: Record<string, string> = {
   டைப்: "type",
   டைப்கேஸ்டிங்: "typecasting",
   கான்ஸ்டன்ட்: "constant",
-
-  // ── INPUT / OUTPUT ────────────────────────────────────
-  பிரின்ட்: "print",
+  பிரینட்: "print",
   இன்புட்: "input",
-  அவுட்புட்: "output",
   "எஃப் ஸ்ட்ரிங்": "f-string",
   ஃபார்மேட்: "format",
   என்கோட்: "encode",
   டிகோட்: "decode",
-
-  // ── DATA STRUCTURES ───────────────────────────────────
   லிஸ்ட்: "list",
   லிஸ்ட்ஸ்: "lists",
   டூப்பிள்: "tuple",
@@ -127,16 +117,17 @@ const transliterationMap: Record<string, string> = {
   ரிமூவ்: "remove",
   பாப்: "pop",
   கீஸ்: "keys",
-  வேல்யூஸ்: "values",
-  ஐட்டம்ஸ்: "items",
   சார்ட்: "sort",
   சார்டெட்: "sorted",
   ரிவர்ஸ்: "reverse",
-
-  // ── LOOPS & ITERATION ─────────────────────────────────
   லூப்: "loop",
   லூப்ஸ்: "loops",
-  லூப்பிங்: "looping",
+  லூப்னா: "loop na",
+  லோக்: "loop",
+  லோக்க்: "loop",
+  வோப்: "loop",
+  வோப்பு: "loop",
+  வோப்ப்: "loop",
   "ஃபார் லூப்": "for loop",
   "வைல் லூப்": "while loop",
   "நெஸ்டெட் லூப்": "nested loop",
@@ -151,8 +142,6 @@ const transliterationMap: Record<string, string> = {
   ரிட்யூஸ்: "reduce",
   "லிஸ்ட் கம்ப்ரிஹென்ஷன்": "list comprehension",
   கம்ப்ரிஹென்ஷன்: "comprehension",
-
-  // ── OOP CONCEPTS ──────────────────────────────────────
   ஆப்ஜெக்ட்: "object",
   ஆப்ஜெக்ட்ஸ்: "objects",
   இன்ஸ்டன்ஸ்: "instance",
@@ -175,8 +164,6 @@ const transliterationMap: Record<string, string> = {
   டண்டர்: "dunder",
   ஓவர்ரைடிங்: "overriding",
   ஓவர்லோடிங்: "overloading",
-
-  // ── ERROR HANDLING ────────────────────────────────────
   எக்செப்ஷன்: "exception",
   எர்ரர்: "error",
   எர்ரர்ஸ்: "errors",
@@ -195,19 +182,15 @@ const transliterationMap: Record<string, string> = {
   டிபக்கிங்: "debugging",
   டிபக்: "debug",
   லாக்கிங்: "logging",
-
-  // ── FILE HANDLING ─────────────────────────────────────
   ஃபைல்: "file",
   ஃபைல்ஸ்: "files",
   "ஃபைல் ஹேண்ட்லிங்": "file handling",
   ஓபன்: "open",
-  ரீட்: "read",
+  രീഡ്: "read",
   ரைட்: "write",
   "அப்பெண்ட் மோட்": "append mode",
-  க்லோஸ்: "close",
+  க்ளோஸ்: "close",
   "விட் ஸ்டேட்மெண்ட்": "with statement",
-
-  // ── MODULES & LIBRARIES ───────────────────────────────
   மாட்யூல்: "module",
   மாட்யூல்ஸ்: "modules",
   லைப்ரரி: "library",
@@ -226,8 +209,6 @@ const transliterationMap: Record<string, string> = {
   "ரீ மாட்யூல்": "re module",
   ஜேசன்: "JSON",
   "ஜே சன்": "JSON",
-
-  // ── ALGORITHMS & DSA ──────────────────────────────────
   அல்காரிதம்: "algorithm",
   அல்காரிதம்ஸ்: "algorithms",
   சார்ட்டிங்: "sorting",
@@ -248,8 +229,6 @@ const transliterationMap: Record<string, string> = {
   ரூட்: "root",
   லீஃப்: "leaf",
   "பைனரி ட்ரீ": "binary tree",
-
-  // ── GENERAL PROGRAMMING ───────────────────────────────
   கோட்: "code",
   கோடிங்: "coding",
   ப்ரோக்ராம்: "program",
@@ -259,6 +238,8 @@ const transliterationMap: Record<string, string> = {
   அவுட்புட்: "output",
   கம்பைல்: "compile",
   ரன்: "run",
+  செல்: "cell",
+  பிரிண்ட்: "print",
   எக்சிக்யூட்: "execute",
   டெர்மினல்: "terminal",
   கன்சோல்: "console",
@@ -284,18 +265,14 @@ const transliterationMap: Record<string, string> = {
   எக்ஸ்பிரஷன்: "expression",
   வேல்யூ: "value",
   வேல்யூஸ்: "values",
+  ஐட்டம்ஸ்: "items",
   கே: "key",
   அசைன்மெண்ட்: "assignment",
   கேரட்: "caret",
   மாட்யூலஸ்: "modulus"
 }
 
-// ============================================================
-// Smart Transliteration — longest match first to avoid
-// partial replacements (e.g. "இன்ட்" inside "இன்டிஜர்")
-// ============================================================
 export function fixTransliteration(text: string): string {
-  // Sort by length descending — match longer phrases first
   const sortedEntries = Object.entries(transliterationMap).sort(
     ([a], [b]) => b.length - a.length
   )
@@ -308,46 +285,64 @@ export function fixTransliteration(text: string): string {
 }
 
 export async function transcribeAudio(
-  audioFile: File | Blob
+  audioFile: File | Blob,
+  languageCode: string = "ta-IN"
 ): Promise<SarvamSTTResponse> {
   const apiKey = process.env.SARVAM_API_KEY
   if (!apiKey) {
     throw new Error("SARVAM_API_KEY is not defined in environment variables")
   }
 
+  // Use FormData — Sarvam STT expects multipart/form-data
   const formData = new FormData()
-  formData.append("file", audioFile, "audio.webm")
-  formData.append("model", "saarika:v2.5")
-  formData.append("language_code", "unknown") // Auto-detect Tamil/English
-  formData.append("with_timestamps", "false")
-  formData.append("with_disfluencies", "false")
+
+  // Re-wrap the audio blob to ensure plain 'audio/webm' type 
+  // without any extra codec parameters that some browsers append.
+  const cleanBlob = new Blob([await audioFile.arrayBuffer()], {
+    type: "audio/webm"
+  })
+
+  formData.append("file", cleanBlob, "recording.webm")
+  formData.append("model", "saaras:v3")
+  formData.append("language_code", languageCode)
+  formData.append("mode", "transcribe")
 
   try {
+    console.log(`[STT] Calling Sarvam saaras:v3 [Lang: ${languageCode}]...`)
     const response = await fetch("https://api.sarvam.ai/speech-to-text", {
       method: "POST",
       headers: {
-        "api-subscription-key": apiKey
+        "api-subscription-key": apiKey,
       },
       body: formData
     })
 
     if (!response.ok) {
       const errorText = await response.text()
+      console.error("[STT] Sarvam API Error:", response.status, errorText)
       throw new Error(
         `Sarvam STT failed: ${response.status} ${response.statusText} - ${errorText}`
       )
     }
 
-    const data = (await response.json()) as SarvamSTTResponse
+    const data = await response.json()
+    console.log("[STT] Full Response Data Keys:", Object.keys(data))
+    console.log("[STT] Data transcript field:", data.transcript)
+    console.log("[STT] Data text field:", data.text)
 
-    // Post-process: fix Tamil-script Python keywords → English
-    data.transcript = fixTransliteration(data.transcript)
+    // Some versions use 'text', some use 'transcript'
+    const transcript = data.transcript || data.text || ""
+    console.log("[STT] Selected Transcript:", transcript)
 
-    return data
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      throw error
+    const fixedTranscript = fixTransliteration(transcript)
+    console.log("[STT] After fixTransliteration:", fixedTranscript)
+
+    return {
+      transcript: fixedTranscript,
+      language_code: data.language_code || "ta-IN"
     }
+  } catch (error: unknown) {
+    if (error instanceof Error) throw error
     throw new Error("An unknown error occurred during Sarvam STT transcription")
   }
 }
